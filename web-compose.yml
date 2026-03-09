@@ -1,0 +1,14 @@
+services:
+  travelhub_web:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - COOKIE_NAME=user_id
+      - COOKIE_MAX_AGE=2592000
+    expose:
+      - "3000"
+    networks:
+      - web
+    labels:
+      caddy: "travelhub.${HOST_SUFFIX:-localhost}"
+      caddy.reverse_proxy: "travelhub_web:3000"

@@ -1,0 +1,1735 @@
+{
+  "examples": {
+    "huggingface_file": {
+      "url": "https://huggingface.co/datasets/adlsdztony/osworld-v2/blob/main/email_031.tar.gz",
+      "note": "Initial example file reference (no verification)."
+    }
+  },
+  "uploads": [],
+  "preferences": {
+    "currency": "HKD",
+    "language": "en-gb",
+    "dateFormat": "DD/MM/YYYY",
+    "measurementUnit": "metric"
+  },
+  "airports": [
+    {
+      "code": "HKG",
+      "name": "Hong Kong International Airport",
+      "city": "Hong Kong",
+      "country": "Hong Kong",
+      "timezone": "Asia/Hong_Kong"
+    },
+    {
+      "code": "LHR",
+      "name": "Heathrow Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "timezone": "Europe/London"
+    },
+    {
+      "code": "LGW",
+      "name": "Gatwick Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "timezone": "Europe/London"
+    },
+    {
+      "code": "STN",
+      "name": "Stansted Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "timezone": "Europe/London"
+    },
+    {
+      "code": "JFK",
+      "name": "John F. Kennedy International Airport",
+      "city": "New York",
+      "country": "United States",
+      "timezone": "America/New_York"
+    },
+    {
+      "code": "LAX",
+      "name": "Los Angeles International Airport",
+      "city": "Los Angeles",
+      "country": "United States",
+      "timezone": "America/Los_Angeles"
+    },
+    {
+      "code": "NRT",
+      "name": "Narita International Airport",
+      "city": "Tokyo",
+      "country": "Japan",
+      "timezone": "Asia/Tokyo"
+    },
+    {
+      "code": "HND",
+      "name": "Haneda Airport",
+      "city": "Tokyo",
+      "country": "Japan",
+      "timezone": "Asia/Tokyo"
+    },
+    {
+      "code": "CDG",
+      "name": "Charles de Gaulle Airport",
+      "city": "Paris",
+      "country": "France",
+      "timezone": "Europe/Paris"
+    },
+    {
+      "code": "SIN",
+      "name": "Singapore Changi Airport",
+      "city": "Singapore",
+      "country": "Singapore",
+      "timezone": "Asia/Singapore"
+    },
+    {
+      "code": "DXB",
+      "name": "Dubai International Airport",
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "timezone": "Asia/Dubai"
+    },
+    {
+      "code": "SYD",
+      "name": "Sydney Kingsford Smith Airport",
+      "city": "Sydney",
+      "country": "Australia",
+      "timezone": "Australia/Sydney"
+    },
+    {
+      "code": "PEK",
+      "name": "Beijing Capital International Airport",
+      "city": "Beijing",
+      "country": "China",
+      "timezone": "Asia/Shanghai"
+    },
+    {
+      "code": "PVG",
+      "name": "Shanghai Pudong International Airport",
+      "city": "Shanghai",
+      "country": "China",
+      "timezone": "Asia/Shanghai"
+    },
+    {
+      "code": "ICN",
+      "name": "Incheon International Airport",
+      "city": "Seoul",
+      "country": "South Korea",
+      "timezone": "Asia/Seoul"
+    },
+    {
+      "code": "BKK",
+      "name": "Suvarnabhumi Airport",
+      "city": "Bangkok",
+      "country": "Thailand",
+      "timezone": "Asia/Bangkok"
+    },
+    {
+      "code": "FRA",
+      "name": "Frankfurt Airport",
+      "city": "Frankfurt",
+      "country": "Germany",
+      "timezone": "Europe/Berlin"
+    },
+    {
+      "code": "AMS",
+      "name": "Amsterdam Schiphol Airport",
+      "city": "Amsterdam",
+      "country": "Netherlands",
+      "timezone": "Europe/Amsterdam"
+    }
+  ],
+  "flights": [
+    {
+      "id": "CX251",
+      "flightNumber": "CX251",
+      "airline": "Cathay Pacific",
+      "airlineCode": "CX",
+      "origin": "HKG",
+      "destination": "LHR",
+      "departureTime": "23:30",
+      "arrivalTime": "05:15+1",
+      "duration": "12h 45m",
+      "aircraft": "Airbus A350-1000",
+      "cabinClasses": {
+        "economy": {
+          "price": 5200,
+          "seatsAvailable": 120
+        },
+        "premium_economy": {
+          "price": 8500,
+          "seatsAvailable": 40
+        },
+        "business": {
+          "price": 28000,
+          "seatsAvailable": 24
+        },
+        "first": {
+          "price": 65000,
+          "seatsAvailable": 6
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "USB Power"
+      ]
+    },
+    {
+      "id": "BA28",
+      "flightNumber": "BA28",
+      "airline": "British Airways",
+      "airlineCode": "BA",
+      "origin": "HKG",
+      "destination": "LHR",
+      "departureTime": "22:45",
+      "arrivalTime": "05:30+1",
+      "duration": "13h 45m",
+      "aircraft": "Boeing 777-300ER",
+      "cabinClasses": {
+        "economy": {
+          "price": 4800,
+          "seatsAvailable": 150
+        },
+        "premium_economy": {
+          "price": 7900,
+          "seatsAvailable": 56
+        },
+        "business": {
+          "price": 25000,
+          "seatsAvailable": 32
+        },
+        "first": {
+          "price": 58000,
+          "seatsAvailable": 8
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "Lounge Access"
+      ]
+    },
+    {
+      "id": "VS206",
+      "flightNumber": "VS206",
+      "airline": "Virgin Atlantic",
+      "airlineCode": "VS",
+      "origin": "HKG",
+      "destination": "LHR",
+      "departureTime": "21:00",
+      "arrivalTime": "04:30+1",
+      "duration": "13h 30m",
+      "aircraft": "Airbus A350-1000",
+      "cabinClasses": {
+        "economy": {
+          "price": 4500,
+          "seatsAvailable": 180
+        },
+        "premium_economy": {
+          "price": 7200,
+          "seatsAvailable": 48
+        },
+        "business": {
+          "price": 22000,
+          "seatsAvailable": 28
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "Bar"
+      ]
+    },
+    {
+      "id": "CX252",
+      "flightNumber": "CX252",
+      "airline": "Cathay Pacific",
+      "airlineCode": "CX",
+      "origin": "LHR",
+      "destination": "HKG",
+      "departureTime": "19:00",
+      "arrivalTime": "14:45+1",
+      "duration": "11h 45m",
+      "aircraft": "Airbus A350-1000",
+      "cabinClasses": {
+        "economy": {
+          "price": 5200,
+          "seatsAvailable": 115
+        },
+        "premium_economy": {
+          "price": 8500,
+          "seatsAvailable": 38
+        },
+        "business": {
+          "price": 28000,
+          "seatsAvailable": 22
+        },
+        "first": {
+          "price": 65000,
+          "seatsAvailable": 4
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "USB Power"
+      ]
+    },
+    {
+      "id": "BA27",
+      "flightNumber": "BA27",
+      "airline": "British Airways",
+      "airlineCode": "BA",
+      "origin": "LHR",
+      "destination": "HKG",
+      "departureTime": "18:30",
+      "arrivalTime": "14:15+1",
+      "duration": "11h 45m",
+      "aircraft": "Boeing 777-300ER",
+      "cabinClasses": {
+        "economy": {
+          "price": 4800,
+          "seatsAvailable": 145
+        },
+        "premium_economy": {
+          "price": 7900,
+          "seatsAvailable": 52
+        },
+        "business": {
+          "price": 25000,
+          "seatsAvailable": 30
+        },
+        "first": {
+          "price": 58000,
+          "seatsAvailable": 6
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "Lounge Access"
+      ]
+    },
+    {
+      "id": "CX840",
+      "flightNumber": "CX840",
+      "airline": "Cathay Pacific",
+      "airlineCode": "CX",
+      "origin": "HKG",
+      "destination": "JFK",
+      "departureTime": "00:05",
+      "arrivalTime": "05:30",
+      "duration": "16h 25m",
+      "aircraft": "Boeing 777-300ER",
+      "cabinClasses": {
+        "economy": {
+          "price": 7500,
+          "seatsAvailable": 180
+        },
+        "premium_economy": {
+          "price": 12000,
+          "seatsAvailable": 48
+        },
+        "business": {
+          "price": 35000,
+          "seatsAvailable": 42
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "USB Power"
+      ]
+    },
+    {
+      "id": "CX500",
+      "flightNumber": "CX500",
+      "airline": "Cathay Pacific",
+      "airlineCode": "CX",
+      "origin": "HKG",
+      "destination": "NRT",
+      "departureTime": "08:30",
+      "arrivalTime": "13:30",
+      "duration": "4h 00m",
+      "aircraft": "Airbus A330-300",
+      "cabinClasses": {
+        "economy": {
+          "price": 2800,
+          "seatsAvailable": 200
+        },
+        "business": {
+          "price": 8500,
+          "seatsAvailable": 36
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal"
+      ]
+    },
+    {
+      "id": "SQ1",
+      "flightNumber": "SQ1",
+      "airline": "Singapore Airlines",
+      "airlineCode": "SQ",
+      "origin": "SIN",
+      "destination": "LHR",
+      "departureTime": "01:30",
+      "arrivalTime": "07:30",
+      "duration": "13h 00m",
+      "aircraft": "Airbus A380-800",
+      "cabinClasses": {
+        "economy": {
+          "price": 4200,
+          "seatsAvailable": 340
+        },
+        "premium_economy": {
+          "price": 6800,
+          "seatsAvailable": 60
+        },
+        "business": {
+          "price": 18000,
+          "seatsAvailable": 78
+        },
+        "first": {
+          "price": 45000,
+          "seatsAvailable": 12
+        }
+      },
+      "stops": 0,
+      "amenities": [
+        "WiFi",
+        "Entertainment",
+        "Meal",
+        "Suites"
+      ]
+    }
+  ],
+  "hotels": [
+    {
+      "id": "hotel-001",
+      "name": "The Peninsula Hong Kong",
+      "type": "Hotel",
+      "location": {
+        "city": "Hong Kong",
+        "country": "Hong Kong",
+        "address": "Salisbury Road, Tsim Sha Tsui"
+      },
+      "starRating": 5,
+      "reviewScore": 9.4,
+      "reviewCount": 2847,
+      "pricePerNight": 4500,
+      "currency": "HKD",
+      "images": [
+        "/images/hotels/peninsula-hk-1.jpg"
+      ],
+      "amenities": [
+        "Pool",
+        "Spa",
+        "Gym",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Parking",
+        "Airport Shuttle"
+      ],
+      "roomTypes": [
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 4500,
+          "maxGuests": 2
+        },
+        {
+          "id": "suite",
+          "name": "Suite",
+          "price": 8500,
+          "maxGuests": 3
+        },
+        {
+          "id": "grand-suite",
+          "name": "Grand Suite",
+          "price": 15000,
+          "maxGuests": 4
+        }
+      ],
+      "description": "A legendary Hong Kong landmark with stunning harbor views."
+    },
+    {
+      "id": "hotel-002",
+      "name": "The Ritz London",
+      "type": "Hotel",
+      "location": {
+        "city": "London",
+        "country": "United Kingdom",
+        "address": "150 Piccadilly, St. James's"
+      },
+      "starRating": 5,
+      "reviewScore": 9.2,
+      "reviewCount": 1923,
+      "pricePerNight": 850,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/ritz-london-1.jpg"
+      ],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Gym",
+        "WiFi",
+        "Concierge",
+        "Room Service"
+      ],
+      "roomTypes": [
+        {
+          "id": "superior",
+          "name": "Superior Room",
+          "price": 850,
+          "maxGuests": 2
+        },
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 1200,
+          "maxGuests": 2
+        },
+        {
+          "id": "suite",
+          "name": "Suite",
+          "price": 2500,
+          "maxGuests": 3
+        }
+      ],
+      "description": "Iconic luxury hotel in the heart of London's West End."
+    },
+    {
+      "id": "hotel-005",
+      "name": "Budget Inn Express",
+      "type": "Hotel",
+      "location": {
+        "city": "London",
+        "country": "United Kingdom",
+        "address": "123 Commercial Road"
+      },
+      "starRating": 2,
+      "reviewScore": 7.2,
+      "reviewCount": 892,
+      "pricePerNight": 89,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/budget-inn-1.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Breakfast"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 89,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Clean, affordable accommodation near public transport."
+    },
+    {
+      "id": "hotel-london-apt-1",
+      "name": "Covent Garden Luxury Apartment",
+      "type": "Apartment",
+      "location": {
+        "city": "London",
+        "country": "United Kingdom",
+        "address": "15 Long Acre, Covent Garden"
+      },
+      "starRating": null,
+      "reviewScore": 9.0,
+      "reviewCount": 234,
+      "pricePerNight": 180,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/london-apt-1.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Washer",
+        "City View"
+      ],
+      "roomTypes": [
+        {
+          "id": "2bed",
+          "name": "2-Bedroom Apartment",
+          "price": 180,
+          "maxGuests": 4
+        }
+      ],
+      "description": "Stylish 2-bedroom apartment in the heart of London's theatre district."
+    },
+    {
+      "id": "hotel-003",
+      "name": "Park Hyatt Tokyo",
+      "type": "Hotel",
+      "location": {
+        "city": "Tokyo",
+        "country": "Japan",
+        "address": "Shinjuku Park Tower"
+      },
+      "starRating": 5,
+      "reviewScore": 9.3,
+      "reviewCount": 1567,
+      "pricePerNight": 65000,
+      "currency": "JPY",
+      "images": [
+        "/images/hotels/park-hyatt-tokyo-1.jpg"
+      ],
+      "amenities": [
+        "Pool",
+        "Spa",
+        "Gym",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Views"
+      ],
+      "roomTypes": [
+        {
+          "id": "park-room",
+          "name": "Park Room",
+          "price": 65000,
+          "maxGuests": 2
+        },
+        {
+          "id": "park-suite",
+          "name": "Park Suite",
+          "price": 120000,
+          "maxGuests": 3
+        }
+      ],
+      "description": "Contemporary luxury with panoramic views of Mount Fuji and Tokyo."
+    },
+    {
+      "id": "hotel-004",
+      "name": "Marina Bay Sands",
+      "type": "Resort",
+      "location": {
+        "city": "Singapore",
+        "country": "Singapore",
+        "address": "10 Bayfront Avenue"
+      },
+      "starRating": 5,
+      "reviewScore": 9.0,
+      "reviewCount": 5432,
+      "pricePerNight": 550,
+      "currency": "SGD",
+      "images": [
+        "/images/hotels/mbs-singapore-1.jpg"
+      ],
+      "amenities": [
+        "Infinity Pool",
+        "Casino",
+        "Shopping",
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "WiFi"
+      ],
+      "roomTypes": [
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 550,
+          "maxGuests": 2
+        },
+        {
+          "id": "premier",
+          "name": "Premier Room",
+          "price": 750,
+          "maxGuests": 2
+        },
+        {
+          "id": "suite",
+          "name": "Sands Suite",
+          "price": 1500,
+          "maxGuests": 4
+        }
+      ],
+      "description": "Iconic integrated resort with the world's largest rooftop infinity pool."
+    },
+    {
+      "id": "hotel-manchester-1",
+      "name": "The Midland Manchester",
+      "type": "Hotel",
+      "location": {
+        "city": "Manchester",
+        "country": "United Kingdom",
+        "address": "Peter Street"
+      },
+      "starRating": 4,
+      "reviewScore": 8.8,
+      "reviewCount": 1245,
+      "pricePerNight": 145,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/midland-manchester.jpg"
+      ],
+      "amenities": [
+        "Spa",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Gym",
+        "Room Service"
+      ],
+      "roomTypes": [
+        {
+          "id": "classic",
+          "name": "Classic Room",
+          "price": 145,
+          "maxGuests": 2
+        },
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 195,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Historic hotel in the heart of Manchester with elegant Victorian architecture."
+    },
+    {
+      "id": "hotel-manchester-2",
+      "name": "Premier Inn Manchester City Centre",
+      "type": "Hotel",
+      "location": {
+        "city": "Manchester",
+        "country": "United Kingdom",
+        "address": "112 Portland Street"
+      },
+      "starRating": 3,
+      "reviewScore": 8.1,
+      "reviewCount": 3421,
+      "pricePerNight": 75,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/premier-inn-manchester.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Restaurant",
+        "Bar"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 75,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Modern budget-friendly hotel near Manchester Piccadilly station."
+    },
+    {
+      "id": "hotel-manchester-apt-1",
+      "name": "Northern Quarter Apartment",
+      "type": "Apartment",
+      "location": {
+        "city": "Manchester",
+        "country": "United Kingdom",
+        "address": "Oldham Street, Northern Quarter"
+      },
+      "starRating": null,
+      "reviewScore": 8.7,
+      "reviewCount": 156,
+      "pricePerNight": 95,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/nq-apartment.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Washer"
+      ],
+      "roomTypes": [
+        {
+          "id": "1bed",
+          "name": "1-Bedroom Apartment",
+          "price": 95,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Trendy apartment in Manchester's vibrant Northern Quarter."
+    },
+    {
+      "id": "hotel-liverpool-1",
+      "name": "Titanic Hotel Liverpool",
+      "type": "Hotel",
+      "location": {
+        "city": "Liverpool",
+        "country": "United Kingdom",
+        "address": "Stanley Dock, Regent Road"
+      },
+      "starRating": 4,
+      "reviewScore": 9.1,
+      "reviewCount": 876,
+      "pricePerNight": 125,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/titanic-liverpool.jpg"
+      ],
+      "amenities": [
+        "Spa",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Gym",
+        "Parking"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 125,
+          "maxGuests": 2
+        },
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 165,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Stunning warehouse conversion in Liverpool's historic docklands."
+    },
+    {
+      "id": "hotel-liverpool-2",
+      "name": "Hope Street Hotel",
+      "type": "Hotel",
+      "location": {
+        "city": "Liverpool",
+        "country": "United Kingdom",
+        "address": "40 Hope Street"
+      },
+      "starRating": 4,
+      "reviewScore": 8.9,
+      "reviewCount": 654,
+      "pricePerNight": 135,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/hope-street.jpg"
+      ],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Room Service"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 135,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Boutique hotel in Liverpool's Georgian Quarter near the Philharmonic."
+    },
+    {
+      "id": "hotel-birmingham-1",
+      "name": "Hyatt Regency Birmingham",
+      "type": "Hotel",
+      "location": {
+        "city": "Birmingham",
+        "country": "United Kingdom",
+        "address": "2 Bridge Street"
+      },
+      "starRating": 4,
+      "reviewScore": 8.6,
+      "reviewCount": 1876,
+      "pricePerNight": 115,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/hyatt-birmingham.jpg"
+      ],
+      "amenities": [
+        "Pool",
+        "Spa",
+        "Gym",
+        "Restaurant",
+        "Bar",
+        "WiFi"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 115,
+          "maxGuests": 2
+        },
+        {
+          "id": "regency",
+          "name": "Regency Suite",
+          "price": 225,
+          "maxGuests": 3
+        }
+      ],
+      "description": "Modern hotel in Birmingham city centre with excellent conference facilities."
+    },
+    {
+      "id": "hotel-birmingham-2",
+      "name": "Staying Cool at Rotunda",
+      "type": "Apartment",
+      "location": {
+        "city": "Birmingham",
+        "country": "United Kingdom",
+        "address": "150 New Street"
+      },
+      "starRating": null,
+      "reviewScore": 9.2,
+      "reviewCount": 432,
+      "pricePerNight": 140,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/rotunda-birmingham.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "City View",
+        "Gym"
+      ],
+      "roomTypes": [
+        {
+          "id": "studio",
+          "name": "Studio Apartment",
+          "price": 140,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Stylish serviced apartments in Birmingham's iconic Rotunda building."
+    },
+    {
+      "id": "hotel-edinburgh-1",
+      "name": "The Balmoral",
+      "type": "Hotel",
+      "location": {
+        "city": "Edinburgh",
+        "country": "United Kingdom",
+        "address": "1 Princes Street"
+      },
+      "starRating": 5,
+      "reviewScore": 9.4,
+      "reviewCount": 2134,
+      "pricePerNight": 350,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/balmoral-edinburgh.jpg"
+      ],
+      "amenities": [
+        "Spa",
+        "Pool",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Gym",
+        "Room Service"
+      ],
+      "roomTypes": [
+        {
+          "id": "classic",
+          "name": "Classic Room",
+          "price": 350,
+          "maxGuests": 2
+        },
+        {
+          "id": "deluxe",
+          "name": "Deluxe Room",
+          "price": 450,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Landmark luxury hotel on Princes Street with views of Edinburgh Castle."
+    },
+    {
+      "id": "hotel-edinburgh-2",
+      "name": "Kimpton Charlotte Square Hotel",
+      "type": "Hotel",
+      "location": {
+        "city": "Edinburgh",
+        "country": "United Kingdom",
+        "address": "38 Charlotte Square"
+      },
+      "starRating": 5,
+      "reviewScore": 9.1,
+      "reviewCount": 876,
+      "pricePerNight": 275,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/kimpton-edinburgh.jpg"
+      ],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Gym",
+        "Room Service"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 275,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Elegant Georgian townhouse hotel in Edinburgh's prestigious New Town."
+    },
+    {
+      "id": "hotel-edinburgh-apt-1",
+      "name": "Royal Mile Luxury Apartment",
+      "type": "Apartment",
+      "location": {
+        "city": "Edinburgh",
+        "country": "United Kingdom",
+        "address": "High Street, Royal Mile"
+      },
+      "starRating": null,
+      "reviewScore": 9.0,
+      "reviewCount": 321,
+      "pricePerNight": 165,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/royal-mile-apt.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Washer",
+        "Historic Building"
+      ],
+      "roomTypes": [
+        {
+          "id": "1bed",
+          "name": "1-Bedroom Apartment",
+          "price": 165,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Charming apartment on Edinburgh's historic Royal Mile."
+    },
+    {
+      "id": "hotel-paris-1",
+      "name": "Le Meurice",
+      "type": "Hotel",
+      "location": {
+        "city": "Paris",
+        "country": "France",
+        "address": "228 Rue de Rivoli"
+      },
+      "starRating": 5,
+      "reviewScore": 9.5,
+      "reviewCount": 1543,
+      "pricePerNight": 950,
+      "currency": "EUR",
+      "images": [
+        "/images/hotels/le-meurice.jpg"
+      ],
+      "amenities": [
+        "Spa",
+        "Restaurant",
+        "Bar",
+        "WiFi",
+        "Gym",
+        "Room Service",
+        "Concierge"
+      ],
+      "roomTypes": [
+        {
+          "id": "superior",
+          "name": "Superior Room",
+          "price": 950,
+          "maxGuests": 2
+        },
+        {
+          "id": "deluxe",
+          "name": "Deluxe Suite",
+          "price": 1500,
+          "maxGuests": 3
+        }
+      ],
+      "description": "Historic palace hotel overlooking the Tuileries Garden."
+    },
+    {
+      "id": "hotel-paris-2",
+      "name": "Hotel des Arts Montmartre",
+      "type": "Hotel",
+      "location": {
+        "city": "Paris",
+        "country": "France",
+        "address": "5 Rue Tholoz\u00e9, Montmartre"
+      },
+      "starRating": 3,
+      "reviewScore": 8.4,
+      "reviewCount": 1234,
+      "pricePerNight": 120,
+      "currency": "EUR",
+      "images": [
+        "/images/hotels/arts-montmartre.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Breakfast"
+      ],
+      "roomTypes": [
+        {
+          "id": "standard",
+          "name": "Standard Room",
+          "price": 120,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Charming boutique hotel in the artistic Montmartre neighborhood."
+    },
+    {
+      "id": "hotel-paris-apt-1",
+      "name": "Marais District Apartment",
+      "type": "Apartment",
+      "location": {
+        "city": "Paris",
+        "country": "France",
+        "address": "Rue des Francs Bourgeois, Le Marais"
+      },
+      "starRating": null,
+      "reviewScore": 8.9,
+      "reviewCount": 287,
+      "pricePerNight": 175,
+      "currency": "EUR",
+      "images": [
+        "/images/hotels/marais-apt.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Washer"
+      ],
+      "roomTypes": [
+        {
+          "id": "1bed",
+          "name": "1-Bedroom Apartment",
+          "price": 175,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Stylish apartment in the trendy Marais district."
+    },
+    {
+      "id": "resort-maldives-1",
+      "name": "Soneva Fushi",
+      "type": "Resort",
+      "location": {
+        "city": "Baa Atoll",
+        "country": "Maldives",
+        "address": "Kunfunadhoo Island"
+      },
+      "starRating": 5,
+      "reviewScore": 9.6,
+      "reviewCount": 876,
+      "pricePerNight": 2500,
+      "currency": "USD",
+      "images": [
+        "/images/hotels/soneva-fushi.jpg"
+      ],
+      "amenities": [
+        "Beach",
+        "Pool",
+        "Spa",
+        "Diving",
+        "Restaurant",
+        "Bar",
+        "WiFi"
+      ],
+      "roomTypes": [
+        {
+          "id": "villa",
+          "name": "Beach Villa",
+          "price": 2500,
+          "maxGuests": 2
+        },
+        {
+          "id": "water-villa",
+          "name": "Water Villa",
+          "price": 3500,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Luxury eco-resort in the pristine waters of the Maldives."
+    },
+    {
+      "id": "villa-tuscany-1",
+      "name": "Villa Fontanelle",
+      "type": "Villa",
+      "location": {
+        "city": "Florence",
+        "country": "Italy",
+        "address": "Via di Mucciano, Fiesole"
+      },
+      "starRating": null,
+      "reviewScore": 9.3,
+      "reviewCount": 156,
+      "pricePerNight": 850,
+      "currency": "EUR",
+      "images": [
+        "/images/hotels/villa-tuscany.jpg"
+      ],
+      "amenities": [
+        "Pool",
+        "Garden",
+        "Kitchen",
+        "Parking",
+        "WiFi",
+        "Views"
+      ],
+      "roomTypes": [
+        {
+          "id": "entire",
+          "name": "Entire Villa (4 Bedrooms)",
+          "price": 850,
+          "maxGuests": 8
+        }
+      ],
+      "description": "Stunning Tuscan villa with panoramic views of Florence."
+    },
+    {
+      "id": "hostel-london-1",
+      "name": "Generator London",
+      "type": "Hostel",
+      "location": {
+        "city": "London",
+        "country": "United Kingdom",
+        "address": "37 Tavistock Place, Bloomsbury"
+      },
+      "starRating": null,
+      "reviewScore": 7.8,
+      "reviewCount": 4532,
+      "pricePerNight": 25,
+      "currency": "GBP",
+      "images": [
+        "/images/hotels/generator-london.jpg"
+      ],
+      "amenities": [
+        "WiFi",
+        "Bar",
+        "Lounge",
+        "Laundry"
+      ],
+      "roomTypes": [
+        {
+          "id": "dorm",
+          "name": "Dormitory Bed",
+          "price": 25,
+          "maxGuests": 1
+        },
+        {
+          "id": "private",
+          "name": "Private Room",
+          "price": 85,
+          "maxGuests": 2
+        }
+      ],
+      "description": "Trendy design hostel in central London near King's Cross."
+    },
+    {
+      "id": "cabin-norway-1",
+      "name": "Aurora Fjord Cabin",
+      "type": "Cabin",
+      "location": {
+        "city": "Troms\u00f8",
+        "country": "Norway",
+        "address": "Kval\u00f8ya Island"
+      },
+      "starRating": null,
+      "reviewScore": 9.4,
+      "reviewCount": 234,
+      "pricePerNight": 280,
+      "currency": "EUR",
+      "images": [
+        "/images/hotels/aurora-cabin.jpg"
+      ],
+      "amenities": [
+        "Sauna",
+        "Kitchen",
+        "Fjord View",
+        "WiFi",
+        "Fireplace"
+      ],
+      "roomTypes": [
+        {
+          "id": "entire",
+          "name": "Entire Cabin",
+          "price": 280,
+          "maxGuests": 4
+        }
+      ],
+      "description": "Cozy cabin with stunning views of the Northern Lights and Norwegian fjords."
+    }
+  ],
+  "cars": [
+    {
+      "id": "car-001",
+      "provider": "Hertz",
+      "type": "Economy",
+      "model": "Toyota Yaris",
+      "pricePerDay": 45,
+      "currency": "USD",
+      "features": [
+        "Air Conditioning",
+        "Automatic",
+        "4 Seats",
+        "2 Bags"
+      ],
+      "locations": [
+        "LHR",
+        "JFK",
+        "LAX",
+        "HKG"
+      ],
+      "image": "/images/cars/yaris.jpg"
+    },
+    {
+      "id": "car-002",
+      "provider": "Avis",
+      "type": "SUV",
+      "model": "BMW X5",
+      "pricePerDay": 150,
+      "currency": "USD",
+      "features": [
+        "Air Conditioning",
+        "Automatic",
+        "5 Seats",
+        "4 Bags",
+        "GPS"
+      ],
+      "locations": [
+        "LHR",
+        "JFK",
+        "LAX",
+        "CDG"
+      ],
+      "image": "/images/cars/bmw-x5.jpg"
+    },
+    {
+      "id": "car-003",
+      "provider": "Enterprise",
+      "type": "Luxury",
+      "model": "Mercedes S-Class",
+      "pricePerDay": 280,
+      "currency": "USD",
+      "features": [
+        "Air Conditioning",
+        "Automatic",
+        "4 Seats",
+        "3 Bags",
+        "GPS",
+        "Leather"
+      ],
+      "locations": [
+        "LHR",
+        "JFK",
+        "DXB",
+        "SIN"
+      ],
+      "image": "/images/cars/mercedes-s.jpg"
+    }
+  ],
+  "attractions": [
+    {
+      "id": "attr-001",
+      "name": "Victoria Peak Tour",
+      "location": {
+        "city": "Hong Kong",
+        "country": "Hong Kong"
+      },
+      "category": "Tours",
+      "price": 350,
+      "currency": "HKD",
+      "duration": "3 hours",
+      "description": "Experience breathtaking views of Hong Kong from Victoria Peak.",
+      "rating": 4.7,
+      "reviewCount": 1234,
+      "includes": [
+        "Peak Tram ticket",
+        "Guide",
+        "Photo stops"
+      ],
+      "image": "/images/attractions/victoria-peak.jpg"
+    },
+    {
+      "id": "attr-002",
+      "name": "London Eye",
+      "location": {
+        "city": "London",
+        "country": "United Kingdom"
+      },
+      "category": "Attractions",
+      "price": 32,
+      "currency": "GBP",
+      "duration": "30 minutes",
+      "description": "Iconic observation wheel with stunning views of London.",
+      "rating": 4.5,
+      "reviewCount": 8765,
+      "includes": [
+        "Standard entry",
+        "360\u00b0 views"
+      ],
+      "image": "/images/attractions/london-eye.jpg"
+    },
+    {
+      "id": "attr-003",
+      "name": "Tokyo Disneyland",
+      "location": {
+        "city": "Tokyo",
+        "country": "Japan"
+      },
+      "category": "Theme Parks",
+      "price": 8200,
+      "currency": "JPY",
+      "duration": "Full day",
+      "description": "Magical theme park with Disney characters and attractions.",
+      "rating": 4.8,
+      "reviewCount": 15432,
+      "includes": [
+        "1-Day Passport",
+        "All rides"
+      ],
+      "image": "/images/attractions/tokyo-disney.jpg"
+    }
+  ],
+  "packages": [
+    {
+      "id": "pkg1",
+      "origin": "London",
+      "destination": "Barcelona",
+      "flight": {
+        "outbound": {
+          "airline": "British Airways",
+          "flightNumber": "BA317",
+          "departure": "LHR",
+          "arrival": "BCN",
+          "departureTime": "08:30",
+          "arrivalTime": "11:45",
+          "duration": "2h 15m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "British Airways",
+          "flightNumber": "BA318",
+          "departure": "BCN",
+          "arrival": "LHR",
+          "departureTime": "16:00",
+          "arrivalTime": "17:15",
+          "duration": "2h 15m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "Hotel Barcelona Center",
+        "stars": 4,
+        "location": "Eixample, Barcelona",
+        "rating": 8.6,
+        "reviews": 2456,
+        "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop",
+        "amenities": [
+          "Free WiFi",
+          "Pool",
+          "Gym",
+          "Restaurant"
+        ]
+      },
+      "flightPrice": 198,
+      "hotelPrice": 560,
+      "packagePrice": 698,
+      "savings": 60,
+      "roomType": "Double Room",
+      "boardBasis": "Breakfast included",
+      "freeCancellation": true,
+      "currency": "EUR"
+    },
+    {
+      "id": "pkg2",
+      "origin": "London",
+      "destination": "Barcelona",
+      "flight": {
+        "outbound": {
+          "airline": "Vueling",
+          "flightNumber": "VY7823",
+          "departure": "LGW",
+          "arrival": "BCN",
+          "departureTime": "06:15",
+          "arrivalTime": "09:30",
+          "duration": "2h 15m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "Vueling",
+          "flightNumber": "VY7824",
+          "departure": "BCN",
+          "arrival": "LGW",
+          "departureTime": "20:45",
+          "arrivalTime": "22:00",
+          "duration": "2h 15m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "W Barcelona",
+        "stars": 5,
+        "location": "Barceloneta Beach, Barcelona",
+        "rating": 9.1,
+        "reviews": 3872,
+        "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=300&h=200&fit=crop",
+        "amenities": [
+          "Beachfront",
+          "Spa",
+          "Pool",
+          "Fine Dining",
+          "Rooftop Bar"
+        ]
+      },
+      "flightPrice": 156,
+      "hotelPrice": 890,
+      "packagePrice": 945,
+      "savings": 101,
+      "roomType": "Wonderful Room",
+      "boardBasis": "Room only",
+      "freeCancellation": true,
+      "currency": "EUR"
+    },
+    {
+      "id": "pkg3",
+      "origin": "London",
+      "destination": "Barcelona",
+      "flight": {
+        "outbound": {
+          "airline": "easyJet",
+          "flightNumber": "EZY8051",
+          "departure": "LTN",
+          "arrival": "BCN",
+          "departureTime": "10:30",
+          "arrivalTime": "13:50",
+          "duration": "2h 20m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "easyJet",
+          "flightNumber": "EZY8052",
+          "departure": "BCN",
+          "arrival": "LTN",
+          "departureTime": "14:30",
+          "arrivalTime": "15:50",
+          "duration": "2h 20m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "Generator Barcelona",
+        "stars": 3,
+        "location": "Gracia, Barcelona",
+        "rating": 8.2,
+        "reviews": 5621,
+        "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=300&h=200&fit=crop",
+        "amenities": [
+          "Free WiFi",
+          "Bar",
+          "Terrace",
+          "Lockers"
+        ]
+      },
+      "flightPrice": 89,
+      "hotelPrice": 245,
+      "packagePrice": 299,
+      "savings": 35,
+      "roomType": "Private Twin Room",
+      "boardBasis": "Room only",
+      "freeCancellation": false,
+      "currency": "EUR"
+    },
+    {
+      "id": "pkg4",
+      "origin": "London",
+      "destination": "Barcelona",
+      "flight": {
+        "outbound": {
+          "airline": "Iberia",
+          "flightNumber": "IB3170",
+          "departure": "LHR",
+          "arrival": "BCN",
+          "departureTime": "12:15",
+          "arrivalTime": "15:30",
+          "duration": "2h 15m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "Iberia",
+          "flightNumber": "IB3171",
+          "departure": "BCN",
+          "arrival": "LHR",
+          "departureTime": "18:45",
+          "arrivalTime": "20:00",
+          "duration": "2h 15m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "Mandarin Oriental Barcelona",
+        "stars": 5,
+        "location": "Passeig de Gracia, Barcelona",
+        "rating": 9.4,
+        "reviews": 1876,
+        "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop",
+        "amenities": [
+          "Michelin Restaurant",
+          "Spa",
+          "Pool",
+          "Butler Service"
+        ]
+      },
+      "flightPrice": 245,
+      "hotelPrice": 1450,
+      "packagePrice": 1495,
+      "savings": 200,
+      "roomType": "Deluxe Suite",
+      "boardBasis": "Breakfast included",
+      "freeCancellation": true,
+      "currency": "EUR"
+    },
+    {
+      "id": "pkg5",
+      "origin": "London",
+      "destination": "Barcelona",
+      "flight": {
+        "outbound": {
+          "airline": "Ryanair",
+          "flightNumber": "FR1234",
+          "departure": "STN",
+          "arrival": "BCN",
+          "departureTime": "07:00",
+          "arrivalTime": "10:20",
+          "duration": "2h 20m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "Ryanair",
+          "flightNumber": "FR1235",
+          "departure": "BCN",
+          "arrival": "STN",
+          "departureTime": "21:15",
+          "arrivalTime": "22:35",
+          "duration": "2h 20m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "Hotel Arts Barcelona",
+        "stars": 5,
+        "location": "Port Olimpic, Barcelona",
+        "rating": 9.0,
+        "reviews": 2987,
+        "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop",
+        "amenities": [
+          "Beach Access",
+          "Spa",
+          "Multiple Pools",
+          "Fine Dining"
+        ]
+      },
+      "flightPrice": 68,
+      "hotelPrice": 780,
+      "packagePrice": 799,
+      "savings": 49,
+      "roomType": "Sea View Room",
+      "boardBasis": "Breakfast included",
+      "freeCancellation": true,
+      "currency": "EUR"
+    },
+    {
+      "id": "pkg6",
+      "origin": "London",
+      "destination": "Paris",
+      "flight": {
+        "outbound": {
+          "airline": "Eurostar",
+          "flightNumber": "ES9024",
+          "departure": "LHR",
+          "arrival": "CDG",
+          "departureTime": "09:00",
+          "arrivalTime": "11:20",
+          "duration": "1h 20m",
+          "stops": 0
+        },
+        "return": {
+          "airline": "Eurostar",
+          "flightNumber": "ES9025",
+          "departure": "CDG",
+          "arrival": "LHR",
+          "departureTime": "19:00",
+          "arrivalTime": "19:20",
+          "duration": "1h 20m",
+          "stops": 0
+        }
+      },
+      "hotel": {
+        "name": "Le Meurice",
+        "stars": 5,
+        "location": "Rue de Rivoli, Paris",
+        "rating": 9.5,
+        "reviews": 1543,
+        "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop",
+        "amenities": [
+          "Spa",
+          "Restaurant",
+          "Bar",
+          "Concierge"
+        ]
+      },
+      "flightPrice": 120,
+      "hotelPrice": 950,
+      "packagePrice": 999,
+      "savings": 71,
+      "roomType": "Superior Room",
+      "boardBasis": "Breakfast included",
+      "freeCancellation": true,
+      "currency": "EUR"
+    }
+  ],
+  "bookings": [],
+  "cart": {
+    "items": [],
+    "total": 0
+  },
+  "search": {
+    "lastQuery": null,
+    "filters": {},
+    "history": []
+  },
+  "travelers": [],
+  "savedContacts": [],
+  "custom": {}
+}
