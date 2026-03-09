@@ -187,8 +187,8 @@ export default function SearchResultsPage() {
 
     const setupDevtoolGuard = async () => {
       try {
-        const module = await import('disable-devtool');
-        const disableDevtool = module.default ?? module;
+        const devtoolModule = await import('disable-devtool');
+        const disableDevtool = devtoolModule.default ?? devtoolModule;
         if (!isMounted) {
           return;
         }
@@ -199,8 +199,11 @@ export default function SearchResultsPage() {
             navigate('/');
           },
         });
-        if (controller && typeof controller.dispose === 'function') {
-          dispose = controller.dispose.bind(controller);
+        if (controller && typeof controller === 'object' && 'dispose' in controller) {
+          const maybeDispose = (controller as { dispose?: unknown }).dispose;
+          if (typeof maybeDispose === 'function') {
+            dispose = maybeDispose.bind(controller);
+          }
         }
       } catch (error) {
         console.warn('disable-devtool failed to load', error);
