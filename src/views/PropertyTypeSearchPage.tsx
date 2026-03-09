@@ -137,6 +137,21 @@ const getReviewLabel = (score: number) => {
   return 'Review score';
 };
 
+const fallbackHotelImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
+
+const resolveHotelImage = (rawImage?: string) => {
+  if (!rawImage) {
+    return fallbackHotelImage;
+  }
+  if (rawImage.startsWith('//')) {
+    return `https:${rawImage}`;
+  }
+  if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+    return rawImage;
+  }
+  return fallbackHotelImage;
+};
+
 const mapHotelToProperty = (hotel: Record<string, unknown>): PropertyCard => {
   const location = hotel.location as { city?: string; country?: string; address?: string } | undefined;
   const amenities = Array.isArray(hotel.amenities) ? hotel.amenities.map(String) : [];
@@ -155,7 +170,7 @@ const mapHotelToProperty = (hotel: Record<string, unknown>): PropertyCard => {
       : 'City center',
     distance: '0.5 km from centre',
     description: String(hotel.description ?? 'Comfortable stay with great amenities.'),
-    image: image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+    image: resolveHotelImage(image),
     reviewScore,
     reviewCount: Number(hotel.reviewCount ?? 0),
     reviewLabel: getReviewLabel(reviewScore),

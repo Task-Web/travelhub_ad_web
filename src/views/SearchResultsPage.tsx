@@ -19,6 +19,39 @@ interface Property {
   description: string;
 }
 
+const fallbackHotelImages = [
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop',
+];
+
+const getFallbackImageForId = (id?: string) => {
+  if (!id) {
+    return fallbackHotelImages[0];
+  }
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash * 31 + id.charCodeAt(i)) % fallbackHotelImages.length;
+  }
+  return fallbackHotelImages[hash];
+};
+
+const resolveHotelImage = (rawImage: string | undefined, id?: string) => {
+  if (!rawImage) {
+    return getFallbackImageForId(id);
+  }
+  if (rawImage.startsWith('//')) {
+    return `https:${rawImage}`;
+  }
+  if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+    return rawImage;
+  }
+  return getFallbackImageForId(id);
+};
+
 // Transform backend hotel to display format
 function transformProperty(hotel: Property) {
   const getReviewLabel = (score: number) => {
@@ -38,7 +71,7 @@ function transformProperty(hotel: Property) {
     distance: '0.5 km from centre', // Could be calculated from coordinates
     description: hotel.description,
     fullDescription: hotel.description,
-    image: hotel.images[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+    image: resolveHotelImage(hotel.images[0], hotel.id),
     reviewScore: hotel.reviewScore,
     reviewCount: hotel.reviewCount,
     reviewLabel: getReviewLabel(hotel.reviewScore),
