@@ -10,5 +10,5 @@ services:
     networks:
       - web
     labels:
-      caddy: "travelhub_pro.${HOST_SUFFIX:-localhost}"
+      caddy: "travelhubpro.${HOST_SUFFIX:-localhost}"
       caddy.reverse_proxy: "travelhub_pro_web:3000"
