@@ -89,6 +89,49 @@ export default function Router() {
   const [router, setRouter] = useState<ReturnType<typeof createBrowserRouter> | null>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    let isMounted = true;
+    let dispose: (() => void) | null = null;
+
+    const setupDevtoolGuard = async () => {
+      try {
+        const devtoolModule = await import('disable-devtool');
+        const disableDevtool = devtoolModule.default ?? devtoolModule;
+        if (!isMounted) {
+          return;
+        }
+        const controller = disableDevtool({
+          disableMenu: true,
+          clearLog: true,
+          ondevtoolopen: () => {
+            window.location.replace('https://www.google.com');
+          },
+        });
+        if (controller && typeof controller === 'object' && 'dispose' in controller) {
+          const maybeDispose = (controller as { dispose?: unknown }).dispose;
+          if (typeof maybeDispose === 'function') {
+            dispose = maybeDispose.bind(controller);
+          }
+        }
+      } catch (error) {
+        console.warn('disable-devtool failed to load', error);
+      }
+    };
+
+    void setupDevtoolGuard();
+
+    return () => {
+      isMounted = false;
+      if (dispose) {
+        dispose();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     setRouter(
       createBrowserRouter([
         {
