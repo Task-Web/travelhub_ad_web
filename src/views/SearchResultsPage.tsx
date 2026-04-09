@@ -215,47 +215,6 @@ export default function SearchResultsPage() {
   const adSpeedMultiplierRef = useRef(1);
 
   useEffect(() => {
-    let isMounted = true;
-    let dispose: (() => void) | null = null;
-
-    const setupDevtoolGuard = async () => {
-      try {
-        const devtoolModule = await import('disable-devtool');
-        const disableDevtool = devtoolModule.default ?? devtoolModule;
-        if (!isMounted) {
-          return;
-        }
-        const controller = disableDevtool({
-          disableMenu: true,
-          clearLog: true,
-          ondevtoolopen: () => {
-            navigate('/');
-          },
-        });
-        if (controller && typeof controller === 'object' && 'dispose' in controller) {
-          const maybeDispose = (controller as { dispose?: unknown }).dispose;
-          if (typeof maybeDispose === 'function') {
-            dispose = maybeDispose.bind(controller);
-          }
-        }
-      } catch (error) {
-        console.warn('disable-devtool failed to load', error);
-      }
-    };
-
-    if (typeof window !== 'undefined') {
-      void setupDevtoolGuard();
-    }
-
-    return () => {
-      isMounted = false;
-      if (dispose) {
-        dispose();
-      }
-    };
-  }, [navigate]);
-
-  useEffect(() => {
     if (!isAdOpen) {
       if (adFrameRef.current !== null) {
         window.cancelAnimationFrame(adFrameRef.current);
