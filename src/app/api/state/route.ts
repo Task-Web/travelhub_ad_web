@@ -4,6 +4,15 @@ import { stateStore } from "@/lib/state-store";
 import { fileStore } from "@/lib/file-store";
 import { StateResponse, StateRequest, StatePatchRequest } from "@/lib/types";
 
+function shouldMergeTask052Seed(data: Record<string, unknown>): boolean {
+  return (
+    Object.keys(data).length === 1 &&
+    data.task052 !== null &&
+    typeof data.task052 === "object" &&
+    !Array.isArray(data.task052)
+  );
+}
+
 // GET /api/state - Retrieve current user state
 export async function GET(request: NextRequest) {
   const userId = await getUserId(request);
@@ -32,12 +41,20 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  const payloadData = payload.data || {};
+  const data = shouldMergeTask052Seed(payloadData)
+    ? {
+        ...(await stateStore.getState(userId)).data,
+        ...payloadData,
+      }
+    : payloadData;
+
   const nextState: {
     data: Record<string, unknown>;
     note: string | null;
     meta?: StateRequest["meta"];
   } = {
-    data: payload.data || {},
+    data,
     note: payload.note ?? null,
   };
 

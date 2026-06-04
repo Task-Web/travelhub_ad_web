@@ -53,6 +53,9 @@ interface HotelSurroundings {
   closestAirports: SurroundingItem[];
 }
 
+const TASK052_TARGET_HOTEL_ID = 'hotel-paris-1';
+const TASK052_TARGET_HOTEL_NAME = 'Le Meurice';
+
 // Mock property data (same as SearchResultsPage for consistency)
 const mockProperties: Record<string, {
   id: string;
@@ -826,10 +829,38 @@ export default function PropertyDetailPage() {
 
   // Fetch hotel data from backend API
   useEffect(() => {
+    let cancelled = false;
+
     const fetchHotel = async () => {
       if (!id) {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
         return;
+      }
+
+      if (!cancelled) {
+        setLoading(true);
+      }
+
+      if (id === TASK052_TARGET_HOTEL_ID) {
+        try {
+          const flowResponse = await fetch('/api/task052/flow', {
+            credentials: 'include',
+          });
+          const flowData = await flowResponse.json().catch(() => ({}));
+          if (!flowResponse.ok || flowData.flow?.can_view_target_hotel !== true) {
+            if (!cancelled) {
+              navigate('/search?destination=Paris', { replace: true });
+            }
+            return;
+          }
+        } catch {
+          if (!cancelled) {
+            navigate('/search?destination=Paris', { replace: true });
+          }
+          return;
+        }
       }
 
       try {
@@ -840,34 +871,50 @@ export default function PropertyDetailPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.hotel) {
-            setProperty(transformBackendHotel(data.hotel));
-            setError(null);
+            if (!cancelled) {
+              setProperty(transformBackendHotel(data.hotel));
+              setError(null);
+            }
             return;
           }
         }
 
         if (mockProperties[id]) {
-          setProperty(mockProperties[id]);
-          setError(null);
+          if (!cancelled) {
+            setProperty(mockProperties[id]);
+            setError(null);
+          }
         } else {
-          setError('Property not found');
-          setProperty(null);
+          if (!cancelled) {
+            setError('Property not found');
+            setProperty(null);
+          }
         }
       } catch {
         if (mockProperties[id]) {
-          setProperty(mockProperties[id]);
-          setError(null);
+          if (!cancelled) {
+            setProperty(mockProperties[id]);
+            setError(null);
+          }
         } else {
-          setError('Failed to load property');
-          setProperty(null);
+          if (!cancelled) {
+            setError('Failed to load property');
+            setProperty(null);
+          }
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchHotel();
-  }, [id]);
+    void fetchHotel();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, navigate]);
 
   // Navigation tabs for the property page
   const navTabs = [
@@ -951,6 +998,50 @@ export default function PropertyDetailPage() {
       const element = document.getElementById('rooms');
       element?.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleContinueToBooking = async () => {
+    if (!selectedRoom || !property) {
+      return;
+    }
+
+    const selectedRoomData = property.roomTypes.find(r => r.id === selectedRoom);
+    if (!selectedRoomData) {
+      return;
+    }
+
+    if (property.id === TASK052_TARGET_HOTEL_ID) {
+      try {
+        const response = await fetch('/api/task052/open-checkout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            hotel_id: property.id,
+            hotel_name: TASK052_TARGET_HOTEL_NAME,
+            room: selectedRoomData.name,
+          }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.allowed !== true) {
+          throw new Error('Checkout is not available for this room');
+        }
+        navigate(typeof data.next === 'string' ? data.next : '/checkout');
+      } catch (err) {
+        console.error('Failed to open task 052 checkout:', err);
+        navigate('/search?destination=Paris', { replace: true });
+      }
+      return;
+    }
+
+    const checkIn = searchParams.get('checkin') || new Date().toISOString().split('T')[0];
+    const checkOut = searchParams.get('checkout') || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const adults = searchParams.get('adults') || '2';
+    const children = searchParams.get('children') || '0';
+    const rooms = searchParams.get('rooms') || '1';
+    navigate(`/checkout?hotel_id=${property.id}&hotel_name=${encodeURIComponent(property.name)}&room=${encodeURIComponent(selectedRoomData.name)}&checkin=${checkIn}&checkout=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&price=${property.price + selectedRoomData.price}`);
   };
 
   // Loading state
@@ -1918,17 +2009,7 @@ export default function PropertyDetailPage() {
                 <button
                   className="w-full py-3 bg-booking-blue-light text-white font-bold rounded hover:bg-booking-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!selectedRoom}
-                  onClick={() => {
-                    if (selectedRoom) {
-                      const selectedRoomData = property.roomTypes.find(r => r.id === selectedRoom);
-                      const checkIn = searchParams.get('checkin') || new Date().toISOString().split('T')[0];
-                      const checkOut = searchParams.get('checkout') || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                      const adults = searchParams.get('adults') || '2';
-                      const children = searchParams.get('children') || '0';
-                      const rooms = searchParams.get('rooms') || '1';
-                      navigate(`/checkout?hotel_id=${property.id}&hotel_name=${encodeURIComponent(property.name)}&room=${encodeURIComponent(selectedRoomData?.name || '')}&checkin=${checkIn}&checkout=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&price=${property.price + (selectedRoomData?.price || 0)}`);
-                    }
-                  }}
+                  onClick={() => void handleContinueToBooking()}
                 >
                   {selectedRoom ? 'Continue to booking' : 'Select a room to continue'}
                 </button>

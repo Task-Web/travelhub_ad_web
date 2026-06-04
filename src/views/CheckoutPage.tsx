@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import NextLink from 'next/link';
 import { bookingsApi } from '@/api/client';
 
@@ -58,13 +58,43 @@ interface FormErrors {
   terms?: string;
 }
 
+interface Task052Checkout {
+  hotel_id: string;
+  hotel_name: string;
+  room: string;
+}
+
+interface Task052FlowResponse {
+  initialized?: boolean;
+  flow?: {
+    can_view_checkout?: boolean;
+    checkout?: Task052Checkout | null;
+  };
+}
+
+const TASK052_TARGET_HOTEL_ID = 'hotel-paris-1';
+const TASK052_TARGET_HOTEL_NAME = 'Le Meurice';
+const TASK052_TARGET_ROOM = 'Deluxe Suite';
+const TASK052_SEARCH_URL = '/search?destination=Paris';
+
 export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const queryHotelId = searchParams.get('hotel_id');
+  const queryHotelName = searchParams.get('hotel_name') || '';
+  const queryRoomType = searchParams.get('room') || '';
+  const isTask052TargetQuery =
+    queryHotelId === TASK052_TARGET_HOTEL_ID ||
+    queryHotelName === TASK052_TARGET_HOTEL_NAME ||
+    queryRoomType === TASK052_TARGET_ROOM;
+  const [task052Checkout, setTask052Checkout] = useState<Task052Checkout | null>(null);
+  const [isCheckoutGateReady, setIsCheckoutGateReady] = useState(false);
 
   // Get booking details from URL params
-  const hotelId = searchParams.get('hotel_id') || '1';
-  const hotelNameParam = searchParams.get('hotel_name') || '';
-  const roomType = searchParams.get('room') || 'Superior Room';
+  const hotelId = task052Checkout?.hotel_id || queryHotelId || '1';
+  const hotelNameParam = task052Checkout?.hotel_name || queryHotelName;
+  const roomType = task052Checkout?.room || queryRoomType || 'Superior Room';
   const checkIn = searchParams.get('checkin') || '2026-01-20';
   const checkOut = searchParams.get('checkout') || '2026-01-23';
   const adults = parseInt(searchParams.get('adults') || '2');
@@ -97,6 +127,16 @@ export default function CheckoutPage() {
 
   // Fetch hotel data from backend
   useEffect(() => {
+    let cancelled = false;
+
+    setHotel((current) => ({
+      ...current,
+      id: hotelId,
+      name: hotelNameParam || 'Loading...',
+      address: 'Loading...',
+      pricePerNight: priceParam || current.pricePerNight,
+    }));
+
     const fetchHotel = async () => {
       try {
         const response = await fetch(`/api/hotels/${hotelId}`, {
@@ -114,18 +154,20 @@ export default function CheckoutPage() {
               if (score >= 6) return 'Pleasant';
               return 'Review score';
             };
-            setHotel({
-              id: h.id,
-              name: h.name || hotelNameParam,
-              address: location ? `${location.address || ''}, ${location.city || ''}, ${location.country || ''}` : 'Address not available',
-              image: (h.images && h.images[0] && !h.images[0].startsWith('/images/'))
-                ? h.images[0]
-                : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
-              starRating: h.starRating || 4,
-              reviewScore: h.reviewScore || 8.0,
-              reviewLabel: getReviewLabel(h.reviewScore || 8.0),
-              pricePerNight: h.pricePerNight || priceParam || 185,
-            });
+            if (!cancelled) {
+              setHotel({
+                id: h.id,
+                name: h.name || hotelNameParam,
+                address: location ? `${location.address || ''}, ${location.city || ''}, ${location.country || ''}` : 'Address not available',
+                image: (h.images && h.images[0] && !h.images[0].startsWith('/images/'))
+                  ? h.images[0]
+                  : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+                starRating: h.starRating || 4,
+                reviewScore: h.reviewScore || 8.0,
+                reviewLabel: getReviewLabel(h.reviewScore || 8.0),
+                pricePerNight: h.pricePerNight || priceParam || 185,
+              });
+            }
           }
         }
       } catch (error) {
@@ -135,8 +177,12 @@ export default function CheckoutPage() {
     };
 
     if (hotelId) {
-      fetchHotel();
+      void fetchHotel();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [hotelId, hotelNameParam, priceParam]);
 
   // Form state
@@ -154,6 +200,77 @@ export default function CheckoutPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const verifyTask052Checkout = async () => {
+      try {
+        const response = await fetch('/api/task052/flow', {
+          credentials: 'include',
+        });
+        const data = (await response.json().catch(() => ({}))) as Task052FlowResponse;
+        const checkout = data.flow?.checkout ?? null;
+        const canShowTask052Checkout =
+          response.ok &&
+          data.flow?.can_view_checkout === true &&
+          checkout?.hotel_id === TASK052_TARGET_HOTEL_ID &&
+          checkout?.hotel_name === TASK052_TARGET_HOTEL_NAME &&
+          checkout?.room === TASK052_TARGET_ROOM;
+
+        if (canShowTask052Checkout) {
+          if (!cancelled) {
+            setTask052Checkout(checkout);
+          }
+          await fetch('/api/state', {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: {
+                task052: {
+                  checkout_page_visited: true,
+                  checkout,
+                },
+              },
+              note: 'Task 052 checkout reached',
+            }),
+          });
+          if (!cancelled) {
+            setIsCheckoutGateReady(true);
+          }
+          return;
+        }
+
+        if (data.initialized === true || isTask052TargetQuery) {
+          if (!cancelled) {
+            navigate(TASK052_SEARCH_URL, { replace: true });
+          }
+          return;
+        }
+      } catch (error) {
+        if (isTask052TargetQuery) {
+          if (!cancelled) {
+            navigate(TASK052_SEARCH_URL, { replace: true });
+          }
+          return;
+        }
+        console.error('Failed to verify task 052 checkout flow:', error);
+      }
+
+      if (!cancelled) {
+        setIsCheckoutGateReady(true);
+      }
+    };
+
+    void verifyTask052Checkout();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isTask052TargetQuery, navigate]);
 
   // Calculate dates
   const checkInDate = new Date(checkIn);
@@ -312,6 +429,20 @@ export default function CheckoutPage() {
       setShowConfirmation(true);
     }
   };
+
+  if (!isCheckoutGateReady) {
+    return (
+      <div className="bg-neutral-100 min-h-screen">
+        <div className="max-w-container-lg mx-auto px-4 py-12 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-neutral-200 rounded w-64 mx-auto mb-4"></div>
+            <div className="h-4 bg-neutral-200 rounded w-48 mx-auto"></div>
+          </div>
+          <p className="text-neutral-600 mt-4">Loading checkout...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-neutral-100 min-h-screen">
