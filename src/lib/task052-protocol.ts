@@ -1,6 +1,5 @@
 export const TASK052_CLIENT_HEADER_NAME = "X-Task052-Client";
 export const TASK052_CLIENT_HEADER_VALUE = "travelhub-ui";
-export const TASK052_ACTION_TOKEN_TTL_MS = 5 * 60 * 1000;
 
 const TASK052_ACTIONS = [
   "close_ad",
@@ -10,7 +9,7 @@ const TASK052_ACTIONS = [
 
 export type Task052Action = (typeof TASK052_ACTIONS)[number];
 
-export interface Task052ActionTokenTarget {
+export interface Task052ActionTarget {
   hotel_id?: string;
   room?: string;
 }
@@ -19,7 +18,7 @@ export interface Task052ClickProof {
   session_id: string;
   challenge: string;
   action: Task052Action;
-  target: Task052ActionTokenTarget;
+  target: Task052ActionTarget;
   signed_at: string;
   signature: string;
 }
@@ -40,8 +39,8 @@ export function createTask052JsonHeaders(): Record<string, string> {
 
 export function normalizeTask052ActionTarget(
   action: Task052Action,
-  target: Task052ActionTokenTarget = {}
-): Task052ActionTokenTarget {
+  target: Task052ActionTarget = {}
+): Task052ActionTarget {
   if (action === "open_hotel") {
     return { hotel_id: String(target.hotel_id ?? "") };
   }
@@ -57,8 +56,8 @@ export function normalizeTask052ActionTarget(
 }
 
 export function task052ActionTargetsEqual(
-  left: Task052ActionTokenTarget,
-  right: Task052ActionTokenTarget
+  left: Task052ActionTarget,
+  right: Task052ActionTarget
 ): boolean {
   return left.hotel_id === right.hotel_id && left.room === right.room;
 }

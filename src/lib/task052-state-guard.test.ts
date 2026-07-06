@@ -68,22 +68,6 @@ describe("task052 state guard", () => {
     expect(
       validateTask052StatePut({
         task052: initialSeed,
-        task052_action_tokens: [],
-      }).ok
-    ).toBe(false);
-
-    expect(
-      validateTask052StatePatch(
-        {
-          task052_action_tokens: [],
-        },
-        DEFAULT_TASK052_FLOW
-      ).ok
-    ).toBe(false);
-
-    expect(
-      validateTask052StatePut({
-        task052: initialSeed,
         task052_click_sessions: [],
       }).ok
     ).toBe(false);
@@ -92,6 +76,22 @@ describe("task052 state guard", () => {
       validateTask052StatePatch(
         {
           task052_click_sessions: [],
+        },
+        DEFAULT_TASK052_FLOW
+      ).ok
+    ).toBe(false);
+
+    expect(
+      validateTask052StatePut({
+        task052: initialSeed,
+        task052_page_tokens: [],
+      }).ok
+    ).toBe(false);
+
+    expect(
+      validateTask052StatePatch(
+        {
+          task052_page_tokens: [],
         },
         DEFAULT_TASK052_FLOW
       ).ok

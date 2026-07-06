@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
-import { consumeTask052ActionToken } from "@/lib/task052-action-tokens";
+import { consumeTask052ClickProof } from "@/lib/task052-click-sessions";
 import {
   TASK052_TARGET_HOTEL_ID,
   TASK052_TARGET_HOTEL_NAME,
@@ -51,17 +51,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const tokenResult = await consumeTask052ActionToken(
+  const proofResult = await consumeTask052ClickProof(
     userId,
-    String(payload.action_token ?? ""),
+    payload.click_proof,
     "open_checkout",
     { hotel_id: hotelId, room }
   );
-  if (!tokenResult.ok) {
+  if (!proofResult.ok) {
     return createResponseWithCookie(
-      { allowed: false, detail: tokenResult.detail, flow },
+      { allowed: false, detail: proofResult.detail, flow },
       userId,
-      tokenResult.status
+      proofResult.status
     );
   }
 
@@ -77,7 +77,12 @@ export async function POST(request: NextRequest) {
   );
 
   return createResponseWithCookie(
-    { allowed: true, next: "/checkout", flow: nextFlow },
+    {
+      allowed: true,
+      next: "/checkout",
+      next_click_challenge: proofResult.next_challenge,
+      flow: nextFlow,
+    },
     userId
   );
 }

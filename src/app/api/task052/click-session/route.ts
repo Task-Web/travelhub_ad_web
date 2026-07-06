@@ -28,7 +28,11 @@ export async function POST(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
-  const result = await createTask052ClickSession(userId, payload.public_key);
+  const result = await createTask052ClickSession(
+    userId,
+    payload.public_key,
+    payload.page_token
+  );
   if (!result.ok) {
     return createResponseWithCookie(
       { allowed: false, detail: result.detail },

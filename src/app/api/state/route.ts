@@ -48,14 +48,18 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const data = shouldMergeTask052Seed(payloadData)
-    ? {
-        ...(await stateStore.getState(userId)).data,
-        ...payloadData,
-        task052_action_tokens: [],
-        task052_click_sessions: [],
-      }
-    : payloadData;
+  let data = payloadData;
+  if (shouldMergeTask052Seed(payloadData)) {
+    const retainedData: Record<string, unknown> = {
+      ...(await stateStore.getState(userId)).data,
+    };
+    data = {
+      ...retainedData,
+      ...payloadData,
+      task052_click_sessions: [],
+      task052_page_tokens: [],
+    };
+  }
 
   const nextState: {
     data: Record<string, unknown>;

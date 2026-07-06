@@ -3,7 +3,7 @@ import {
   createTask052JsonHeaders,
   normalizeTask052ActionTarget,
   type Task052Action,
-  type Task052ActionTokenTarget,
+  type Task052ActionTarget,
   type Task052ClickProof,
 } from "./task052-protocol";
 
@@ -11,13 +11,6 @@ interface Task052ClickSessionResponse {
   allowed?: boolean;
   click_session_id?: string;
   click_challenge?: string;
-  detail?: string;
-}
-
-interface Task052ActionTokenResponse {
-  allowed?: boolean;
-  action_token?: string;
-  next_click_challenge?: string;
   detail?: string;
 }
 
@@ -31,6 +24,7 @@ type TrustedEventCarrier = Event | { nativeEvent?: Event };
 
 let clickSessionPromise: Promise<Task052ClickSession> | null = null;
 let clickSession: Task052ClickSession | null = null;
+let task052PageToken: string | null = null;
 
 function getNativeEvent(event: TrustedEventCarrier): Event | null {
   if (event instanceof Event) {
@@ -59,6 +53,10 @@ function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
 }
 
 async function createClickSession(): Promise<Task052ClickSession> {
+  if (!task052PageToken) {
+    throw new Error("Task 052 page token is not available");
+  }
+
   const keyPair = await crypto.subtle.generateKey(
     { name: "ECDSA", namedCurve: "P-256" },
     false,
@@ -69,7 +67,10 @@ async function createClickSession(): Promise<Task052ClickSession> {
     method: "POST",
     credentials: "include",
     headers: createTask052JsonHeaders(),
-    body: JSON.stringify({ public_key: publicKey }),
+    body: JSON.stringify({
+      public_key: publicKey,
+      page_token: task052PageToken,
+    }),
   });
   const data = (await response
     .json()
@@ -109,7 +110,7 @@ async function ensureClickSession(): Promise<Task052ClickSession> {
 async function signClickProof(
   session: Task052ClickSession,
   action: Task052Action,
-  target: Task052ActionTokenTarget
+  target: Task052ActionTarget
 ): Promise<Task052ClickProof> {
   const normalizedTarget = normalizeTask052ActionTarget(action, target);
   const unsignedProof = {
@@ -132,41 +133,42 @@ async function signClickProof(
   };
 }
 
+export function setTask052PageToken(pageToken: string | null): void {
+  task052PageToken = pageToken;
+  if (!pageToken) {
+    clickSessionPromise = null;
+    clickSession = null;
+  }
+}
+
 export function prepareTask052ClickSession(): void {
+  if (
+    typeof window !== "undefined" &&
+    new URL(window.location.href).searchParams.has("cookie")
+  ) {
+    return;
+  }
+
   void ensureClickSession().catch(() => {
     clickSessionPromise = null;
     clickSession = null;
   });
 }
 
-export async function requestTask052ActionToken(
+export async function createTask052ClickProofForEvent(
   action: Task052Action,
-  target: Task052ActionTokenTarget = {},
+  target: Task052ActionTarget = {},
   event: TrustedEventCarrier
-): Promise<string> {
+): Promise<Task052ClickProof> {
   assertTrustedEvent(event);
 
   const session = await ensureClickSession();
   const normalizedTarget = normalizeTask052ActionTarget(action, target);
-  const clickProof = await signClickProof(session, action, normalizedTarget);
-  const response = await fetch("/api/task052/action-token", {
-    method: "POST",
-    credentials: "include",
-    headers: createTask052JsonHeaders(),
-    body: JSON.stringify({ action, ...normalizedTarget, click_proof: clickProof }),
-  });
+  return signClickProof(session, action, normalizedTarget);
+}
 
-  const data = (await response
-    .json()
-    .catch(() => ({}))) as Task052ActionTokenResponse;
-
-  if (!response.ok || data.allowed !== true || !data.action_token) {
-    throw new Error(data.detail || "Task 052 action token was not granted");
+export function updateTask052ClickChallenge(nextChallenge: unknown): void {
+  if (clickSession && typeof nextChallenge === "string" && nextChallenge) {
+    clickSession.challenge = nextChallenge;
   }
-
-  if (data.next_click_challenge) {
-    session.challenge = data.next_click_challenge;
-  }
-
-  return data.action_token;
 }

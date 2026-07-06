@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
-import { consumeTask052ActionToken } from "@/lib/task052-action-tokens";
+import { consumeTask052ClickProof } from "@/lib/task052-click-sessions";
 import { patchTask052Flow } from "@/lib/task052-flow";
 import {
   TASK052_CLIENT_HEADER_NAME,
@@ -28,16 +28,16 @@ export async function POST(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
-  const tokenResult = await consumeTask052ActionToken(
+  const proofResult = await consumeTask052ClickProof(
     userId,
-    String(payload.action_token ?? ""),
+    payload.click_proof,
     "close_ad"
   );
-  if (!tokenResult.ok) {
+  if (!proofResult.ok) {
     return createResponseWithCookie(
-      { allowed: false, detail: tokenResult.detail },
+      { allowed: false, detail: proofResult.detail },
       userId,
-      tokenResult.status
+      proofResult.status
     );
   }
 
@@ -47,5 +47,8 @@ export async function POST(request: NextRequest) {
     "Task 052 ad closed"
   );
 
-  return createResponseWithCookie({ allowed: true, flow }, userId);
+  return createResponseWithCookie(
+    { allowed: true, next_click_challenge: proofResult.next_challenge, flow },
+    userId
+  );
 }

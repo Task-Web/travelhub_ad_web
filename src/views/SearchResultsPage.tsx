@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import StaysSearchForm from '../components/search/StaysSearchForm';
-import { prepareTask052ClickSession, requestTask052ActionToken } from '../lib/task052-client';
+import {
+  createTask052ClickProofForEvent,
+  prepareTask052ClickSession,
+  updateTask052ClickChallenge,
+} from '../lib/task052-client';
 import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Property type from backend
@@ -388,18 +392,20 @@ export default function SearchResultsPage() {
     }
 
     task052AdClosedRequestRef.current = (async () => {
-      const actionToken = await requestTask052ActionToken('close_ad', {}, event);
+      const clickProof = await createTask052ClickProofForEvent('close_ad', {}, event);
       const response = await fetch('/api/task052/ad-closed', {
         method: 'POST',
         credentials: 'include',
         headers: createTask052JsonHeaders(),
-        body: JSON.stringify({ action_token: actionToken }),
+        body: JSON.stringify({ click_proof: clickProof }),
       });
+      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
+      if (!response.ok || data.allowed !== true) {
         throw new Error('Failed to record ad closure');
       }
 
+      updateTask052ClickChallenge(data.next_click_challenge);
       setIsAdOpen(false);
     })().catch((err) => {
       task052AdClosedRequestRef.current = null;
@@ -425,7 +431,7 @@ export default function SearchResultsPage() {
     }
 
     try {
-      const actionToken = await requestTask052ActionToken('open_hotel', {
+      const clickProof = await createTask052ClickProofForEvent('open_hotel', {
         hotel_id: propertyId,
       }, event);
       const response = await fetch('/api/task052/open-hotel', {
@@ -434,13 +440,14 @@ export default function SearchResultsPage() {
         headers: createTask052JsonHeaders(),
         body: JSON.stringify({
           hotel_id: propertyId,
-          action_token: actionToken,
+          click_proof: clickProof,
         }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.allowed !== true) {
         throw new Error('Target hotel is not available yet');
       }
+      updateTask052ClickChallenge(data.next_click_challenge);
       navigate(typeof data.next === 'string' ? data.next : `/hotel/${propertyId}`);
     } catch (err) {
       console.error('Failed to open task 052 hotel:', err);

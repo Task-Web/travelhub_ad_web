@@ -1,6 +1,10 @@
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, type MouseEvent as ReactMouseEvent } from 'react';
-import { prepareTask052ClickSession, requestTask052ActionToken } from '../lib/task052-client';
+import {
+  createTask052ClickProofForEvent,
+  prepareTask052ClickSession,
+  updateTask052ClickChallenge,
+} from '../lib/task052-client';
 import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Category ratings type
@@ -1022,7 +1026,7 @@ export default function PropertyDetailPage() {
       }
 
       try {
-        const actionToken = await requestTask052ActionToken('open_checkout', {
+        const clickProof = await createTask052ClickProofForEvent('open_checkout', {
           hotel_id: property.id,
           room: selectedRoomData.name,
         }, event);
@@ -1034,13 +1038,14 @@ export default function PropertyDetailPage() {
             hotel_id: property.id,
             hotel_name: TASK052_TARGET_HOTEL_NAME,
             room: selectedRoomData.name,
-            action_token: actionToken,
+            click_proof: clickProof,
           }),
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || data.allowed !== true) {
           throw new Error('Checkout is not available for this room');
         }
+        updateTask052ClickChallenge(data.next_click_challenge);
         navigate(typeof data.next === 'string' ? data.next : '/checkout');
       } catch (err) {
         console.error('Failed to open task 052 checkout:', err);
