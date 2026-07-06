@@ -3,15 +3,12 @@ import { getUserId, createResponseWithCookie } from "@/lib/cookies";
 import { stateStore } from "@/lib/state-store";
 import { fileStore } from "@/lib/file-store";
 import { StateResponse, StateRequest, StatePatchRequest } from "@/lib/types";
-
-function shouldMergeTask052Seed(data: Record<string, unknown>): boolean {
-  return (
-    Object.keys(data).length === 1 &&
-    data.task052 !== null &&
-    typeof data.task052 === "object" &&
-    !Array.isArray(data.task052)
-  );
-}
+import { getTask052Flow } from "@/lib/task052-flow";
+import {
+  shouldMergeTask052Seed,
+  validateTask052StatePatch,
+  validateTask052StatePut,
+} from "@/lib/task052-state-guard";
 
 // GET /api/state - Retrieve current user state
 export async function GET(request: NextRequest) {
@@ -42,10 +39,20 @@ export async function PUT(request: NextRequest) {
   }
 
   const payloadData = payload.data || {};
+  const task052Validation = validateTask052StatePut(payloadData);
+  if (!task052Validation.ok) {
+    return createResponseWithCookie(
+      { detail: task052Validation.detail },
+      userId,
+      task052Validation.status
+    );
+  }
+
   const data = shouldMergeTask052Seed(payloadData)
     ? {
         ...(await stateStore.getState(userId)).data,
         ...payloadData,
+        task052_action_tokens: [],
       }
     : payloadData;
 
@@ -87,9 +94,20 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  const payloadData = payload.data || {};
+  const { flow } = await getTask052Flow(userId);
+  const task052Validation = validateTask052StatePatch(payloadData, flow);
+  if (!task052Validation.ok) {
+    return createResponseWithCookie(
+      { detail: task052Validation.detail },
+      userId,
+      task052Validation.status
+    );
+  }
+
   const state = await stateStore.patchState(
     userId,
-    payload.data || {},
+    payloadData,
     payload.note
   );
 

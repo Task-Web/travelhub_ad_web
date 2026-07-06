@@ -1,5 +1,7 @@
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent as ReactMouseEvent } from 'react';
+import { requestTask052ActionToken } from '../lib/task052-client';
+import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Category ratings type
 interface CategoryRating {
@@ -1000,7 +1002,7 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleContinueToBooking = async () => {
+  const handleContinueToBooking = async (event: ReactMouseEvent<HTMLButtonElement>) => {
     if (!selectedRoom || !property) {
       return;
     }
@@ -1011,17 +1013,24 @@ export default function PropertyDetailPage() {
     }
 
     if (property.id === TASK052_TARGET_HOTEL_ID) {
+      if (!event.nativeEvent.isTrusted) {
+        return;
+      }
+
       try {
+        const actionToken = await requestTask052ActionToken('open_checkout', {
+          hotel_id: property.id,
+          room: selectedRoomData.name,
+        });
         const response = await fetch('/api/task052/open-checkout', {
           method: 'POST',
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: createTask052JsonHeaders(),
           body: JSON.stringify({
             hotel_id: property.id,
             hotel_name: TASK052_TARGET_HOTEL_NAME,
             room: selectedRoomData.name,
+            action_token: actionToken,
           }),
         });
         const data = await response.json().catch(() => ({}));
@@ -1069,6 +1078,9 @@ export default function PropertyDetailPage() {
       </div>
     );
   }
+
+  const selectedTask052Room =
+    property.roomTypes.find((room) => room.id === selectedRoom)?.name ?? "";
 
   return (
     <div>
@@ -2009,7 +2021,10 @@ export default function PropertyDetailPage() {
                 <button
                   className="w-full py-3 bg-booking-blue-light text-white font-bold rounded hover:bg-booking-blue transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!selectedRoom}
-                  onClick={() => void handleContinueToBooking()}
+                  onClick={(event) => void handleContinueToBooking(event)}
+                  data-task052-action="open_checkout"
+                  data-task052-hotel-id={property.id}
+                  data-task052-room={selectedTask052Room}
                 >
                   {selectedRoom ? 'Continue to booking' : 'Select a room to continue'}
                 </button>

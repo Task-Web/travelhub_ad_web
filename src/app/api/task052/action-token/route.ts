@@ -1,21 +1,21 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
-import { consumeTask052ActionToken } from "@/lib/task052-action-tokens";
+import { issueTask052ActionToken } from "@/lib/task052-action-tokens";
 import {
   TASK052_TARGET_HOTEL_ID,
-  TASK052_TARGET_HOTEL_NAME,
   TASK052_TARGET_ROOM,
   getTask052Flow,
-  patchTask052Flow,
 } from "@/lib/task052-flow";
 import {
   TASK052_CLIENT_HEADER_NAME,
   TASK052_CLIENT_HEADER_VALUE,
+  isTask052Action,
 } from "@/lib/task052-protocol";
 
-// POST /api/task052/open-checkout - Permit checkout only for the target room selected from details.
+// POST /api/task052/action-token - Grant one-time tokens for task 052 UI actions.
 export async function POST(request: NextRequest) {
   const userId = await getUserId(request);
+
   if (
     request.headers.get(TASK052_CLIENT_HEADER_NAME) !==
     TASK052_CLIENT_HEADER_VALUE
@@ -28,11 +28,19 @@ export async function POST(request: NextRequest) {
   }
 
   let payload: Record<string, unknown>;
-
   try {
     payload = await request.json();
   } catch {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
+  }
+
+  const action = payload.action;
+  if (!isTask052Action(action)) {
+    return createResponseWithCookie(
+      { allowed: false, detail: "Invalid task action" },
+      userId,
+      400
+    );
   }
 
   const hotelId = String(payload.hotel_id ?? "");
@@ -40,44 +48,40 @@ export async function POST(request: NextRequest) {
   const { flow } = await getTask052Flow(userId);
 
   if (
-    flow.can_view_target_hotel !== true ||
-    hotelId !== TASK052_TARGET_HOTEL_ID ||
-    room !== TASK052_TARGET_ROOM
+    action === "open_hotel" &&
+    (flow.ad_closed !== true || hotelId !== TASK052_TARGET_HOTEL_ID)
   ) {
     return createResponseWithCookie(
-      { allowed: false, detail: "Checkout is not available for this selection", flow },
+      { allowed: false, detail: "Target hotel is not available yet" },
       userId,
       403
     );
   }
 
-  const tokenResult = await consumeTask052ActionToken(
-    userId,
-    String(payload.action_token ?? ""),
-    "open_checkout",
-    { hotel_id: hotelId, room }
-  );
-  if (!tokenResult.ok) {
+  if (
+    action === "open_checkout" &&
+    (flow.can_view_target_hotel !== true ||
+      hotelId !== TASK052_TARGET_HOTEL_ID ||
+      room !== TASK052_TARGET_ROOM)
+  ) {
     return createResponseWithCookie(
-      { allowed: false, detail: tokenResult.detail, flow },
+      { allowed: false, detail: "Checkout is not available for this selection" },
       userId,
-      tokenResult.status
+      403
     );
   }
 
-  const checkout = {
-    hotel_id: TASK052_TARGET_HOTEL_ID,
-    hotel_name: TASK052_TARGET_HOTEL_NAME,
-    room: TASK052_TARGET_ROOM,
-  };
-  const nextFlow = await patchTask052Flow(
-    userId,
-    { can_view_checkout: true, checkout },
-    "Task 052 checkout opened"
-  );
+  const target =
+    action === "open_hotel"
+      ? { hotel_id: hotelId }
+      : action === "open_checkout"
+        ? { hotel_id: hotelId, room }
+        : {};
+
+  const actionToken = await issueTask052ActionToken(userId, action, target);
 
   return createResponseWithCookie(
-    { allowed: true, next: "/checkout", flow: nextFlow },
+    { allowed: true, action_token: actionToken },
     userId
   );
 }

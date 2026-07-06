@@ -1,7 +1,7 @@
-"use client";
+import ClientRouter from "./ClientRouter";
 
-import Router from "@/Router";
+export const dynamic = "force-dynamic";
 
 export default function CatchAllPage() {
-  return <Router />;
+  return <ClientRouter />;
 }
