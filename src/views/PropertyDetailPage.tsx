@@ -1,6 +1,6 @@
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, type MouseEvent as ReactMouseEvent } from 'react';
-import { requestTask052ActionToken } from '../lib/task052-client';
+import { prepareTask052ClickSession, requestTask052ActionToken } from '../lib/task052-client';
 import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Category ratings type
@@ -824,6 +824,10 @@ export default function PropertyDetailPage() {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+  useEffect(() => {
+    prepareTask052ClickSession();
+  }, []);
+
   // State for fetching hotel from backend
   const [property, setProperty] = useState<typeof mockProperties[string] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1021,7 +1025,7 @@ export default function PropertyDetailPage() {
         const actionToken = await requestTask052ActionToken('open_checkout', {
           hotel_id: property.id,
           room: selectedRoomData.name,
-        });
+        }, event);
         const response = await fetch('/api/task052/open-checkout', {
           method: 'POST',
           credentials: 'include',

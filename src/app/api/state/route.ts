@@ -53,6 +53,7 @@ export async function PUT(request: NextRequest) {
         ...(await stateStore.getState(userId)).data,
         ...payloadData,
         task052_action_tokens: [],
+        task052_click_sessions: [],
       }
     : payloadData;
 

@@ -64,7 +64,7 @@ describe("task052 state guard", () => {
     ).toBe(false);
   });
 
-  it("rejects task052 internal token stores through /api/state", () => {
+  it("rejects task052 internal stores through /api/state", () => {
     expect(
       validateTask052StatePut({
         task052: initialSeed,
@@ -76,6 +76,22 @@ describe("task052 state guard", () => {
       validateTask052StatePatch(
         {
           task052_action_tokens: [],
+        },
+        DEFAULT_TASK052_FLOW
+      ).ok
+    ).toBe(false);
+
+    expect(
+      validateTask052StatePut({
+        task052: initialSeed,
+        task052_click_sessions: [],
+      }).ok
+    ).toBe(false);
+
+    expect(
+      validateTask052StatePatch(
+        {
+          task052_click_sessions: [],
         },
         DEFAULT_TASK052_FLOW
       ).ok

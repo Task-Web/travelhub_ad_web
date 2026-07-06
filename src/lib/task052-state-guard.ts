@@ -8,6 +8,7 @@ type GuardResult = { ok: true } | { ok: false; status: number; detail: string };
 
 const TASK052_INTERNAL_STATE_KEYS = [
   "task052_action_tokens",
+  "task052_click_sessions",
 ];
 
 const TASK052_ALLOWED_CHECKOUT_PATCH_KEYS = [

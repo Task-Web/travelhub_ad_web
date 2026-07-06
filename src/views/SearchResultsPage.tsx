@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import StaysSearchForm from '../components/search/StaysSearchForm';
-import { requestTask052ActionToken } from '../lib/task052-client';
+import { prepareTask052ClickSession, requestTask052ActionToken } from '../lib/task052-client';
 import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Property type from backend
@@ -220,6 +220,10 @@ export default function SearchResultsPage() {
   const task052AdClosedRequestRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
+    prepareTask052ClickSession();
+  }, []);
+
+  useEffect(() => {
     if (!isAdOpen) {
       if (adFrameRef.current !== null) {
         window.cancelAnimationFrame(adFrameRef.current);
@@ -384,7 +388,7 @@ export default function SearchResultsPage() {
     }
 
     task052AdClosedRequestRef.current = (async () => {
-      const actionToken = await requestTask052ActionToken('close_ad');
+      const actionToken = await requestTask052ActionToken('close_ad', {}, event);
       const response = await fetch('/api/task052/ad-closed', {
         method: 'POST',
         credentials: 'include',
@@ -423,7 +427,7 @@ export default function SearchResultsPage() {
     try {
       const actionToken = await requestTask052ActionToken('open_hotel', {
         hotel_id: propertyId,
-      });
+      }, event);
       const response = await fetch('/api/task052/open-hotel', {
         method: 'POST',
         credentials: 'include',
