@@ -1,6 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import StaysSearchForm from '../components/search/StaysSearchForm';
+import {
+  createTask052ClickProofForEvent,
+  prepareTask052ClickSession,
+  updateTask052ClickChallenge,
+} from '../lib/task052-client';
+import { createTask052JsonHeaders } from '../lib/task052-protocol';
 
 // Property type from backend
 interface Property {
@@ -218,6 +224,10 @@ export default function SearchResultsPage() {
   const task052AdClosedRequestRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
+    prepareTask052ClickSession();
+  }, []);
+
+  useEffect(() => {
     if (!isAdOpen) {
       if (adFrameRef.current !== null) {
         window.cancelAnimationFrame(adFrameRef.current);
@@ -372,26 +382,47 @@ export default function SearchResultsPage() {
     setExpandedDescriptions(newExpanded);
   };
 
-  const recordTask052AdClosed = () => {
-    setIsAdOpen(false);
+  const recordTask052AdClosed = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (!event.nativeEvent.isTrusted) {
+      return;
+    }
 
-    task052AdClosedRequestRef.current = fetch('/api/task052/ad-closed', {
-      method: 'POST',
-      credentials: 'include',
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to record ad closure');
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to record task 052 ad closure:', err);
+    if (task052AdClosedRequestRef.current) {
+      return;
+    }
+
+    task052AdClosedRequestRef.current = (async () => {
+      const clickProof = await createTask052ClickProofForEvent('close_ad', {}, event);
+      const response = await fetch('/api/task052/ad-closed', {
+        method: 'POST',
+        credentials: 'include',
+        headers: createTask052JsonHeaders(),
+        body: JSON.stringify({ click_proof: clickProof }),
       });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data.allowed !== true) {
+        throw new Error('Failed to record ad closure');
+      }
+
+      updateTask052ClickChallenge(data.next_click_challenge);
+      setIsAdOpen(false);
+    })().catch((err) => {
+      task052AdClosedRequestRef.current = null;
+      console.error('Failed to record task 052 ad closure:', err);
+    });
   };
 
-  const navigateToProperty = async (propertyId: string) => {
+  const navigateToProperty = async (
+    propertyId: string,
+    event: ReactMouseEvent<HTMLElement>
+  ) => {
     if (propertyId !== TASK052_TARGET_HOTEL_ID) {
       navigate(`/hotel/${propertyId}`);
+      return;
+    }
+
+    if (!event.nativeEvent.isTrusted) {
       return;
     }
 
@@ -400,18 +431,23 @@ export default function SearchResultsPage() {
     }
 
     try {
+      const clickProof = await createTask052ClickProofForEvent('open_hotel', {
+        hotel_id: propertyId,
+      }, event);
       const response = await fetch('/api/task052/open-hotel', {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ hotel_id: propertyId }),
+        headers: createTask052JsonHeaders(),
+        body: JSON.stringify({
+          hotel_id: propertyId,
+          click_proof: clickProof,
+        }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.allowed !== true) {
         throw new Error('Target hotel is not available yet');
       }
+      updateTask052ClickChallenge(data.next_click_challenge);
       navigate(typeof data.next === 'string' ? data.next : `/hotel/${propertyId}`);
     } catch (err) {
       console.error('Failed to open task 052 hotel:', err);
@@ -520,6 +556,7 @@ export default function SearchResultsPage() {
               <button
                 type="button"
                 onClick={recordTask052AdClosed}
+                data-task052-action="close_ad"
                 className="rounded-full border border-neutral-200 px-2 py-1 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-neutral-800"
                 aria-label="Close advertisement"
               >
@@ -780,7 +817,9 @@ export default function SearchResultsPage() {
                       {sortedProperties.map((property, index) => (
                         <button
                           key={property.id}
-                          onClick={() => void navigateToProperty(property.id)}
+                          onClick={(event) => void navigateToProperty(property.id, event)}
+                          data-task052-action="open_hotel"
+                          data-task052-hotel-id={property.id}
                           className="absolute bg-booking-blue text-white text-xs font-bold px-2 py-1 rounded shadow-lg hover:bg-booking-blue-light transition-colors"
                           style={{
                             left: `${20 + (index * 15)}%`,
@@ -828,7 +867,9 @@ export default function SearchResultsPage() {
                       {/* Image - clickable */}
                       <div
                         className="w-64 flex-shrink-0 relative cursor-pointer"
-                        onClick={() => void navigateToProperty(property.id)}
+                        onClick={(event) => void navigateToProperty(property.id, event)}
+                        data-task052-action="open_hotel"
+                        data-task052-hotel-id={property.id}
                       >
                         <img
                           src={property.image}
@@ -850,7 +891,9 @@ export default function SearchResultsPage() {
                               <div className="flex items-center gap-2">
                                 <h2
                                   className="text-lg font-bold text-booking-blue-light hover:underline cursor-pointer"
-                                  onClick={() => void navigateToProperty(property.id)}
+                                  onClick={(event) => void navigateToProperty(property.id, event)}
+                                  data-task052-action="open_hotel"
+                                  data-task052-hotel-id={property.id}
                                 >
                                   {property.name}
                                 </h2>
@@ -877,7 +920,9 @@ export default function SearchResultsPage() {
                               </div>
                               <p
                                 className="text-sm text-booking-blue-light hover:underline cursor-pointer flex items-center gap-1"
-                                onClick={() => void navigateToProperty(property.id)}
+                                onClick={(event) => void navigateToProperty(property.id, event)}
+                                data-task052-action="open_hotel"
+                                data-task052-hotel-id={property.id}
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0">
                                   <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
@@ -981,7 +1026,9 @@ export default function SearchResultsPage() {
                               </>
                             )}
                             <button
-                              onClick={() => void navigateToProperty(property.id)}
+                              onClick={(event) => void navigateToProperty(property.id, event)}
+                              data-task052-action="open_hotel"
+                              data-task052-hotel-id={property.id}
                               className="mt-2 px-4 py-2 bg-booking-blue-light text-white font-medium rounded hover:bg-booking-blue transition-colors"
                             >
                               {addFlights ? 'View package' : 'Check availability'}

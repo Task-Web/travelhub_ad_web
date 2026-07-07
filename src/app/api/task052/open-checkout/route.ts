@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
+import { consumeTask052ClickProof } from "@/lib/task052-click-sessions";
 import {
   TASK052_TARGET_HOTEL_ID,
   TASK052_TARGET_HOTEL_NAME,
@@ -7,10 +8,25 @@ import {
   getTask052Flow,
   patchTask052Flow,
 } from "@/lib/task052-flow";
+import {
+  TASK052_CLIENT_HEADER_NAME,
+  TASK052_CLIENT_HEADER_VALUE,
+} from "@/lib/task052-protocol";
 
 // POST /api/task052/open-checkout - Permit checkout only for the target room selected from details.
 export async function POST(request: NextRequest) {
   const userId = await getUserId(request);
+  if (
+    request.headers.get(TASK052_CLIENT_HEADER_NAME) !==
+    TASK052_CLIENT_HEADER_VALUE
+  ) {
+    return createResponseWithCookie(
+      { allowed: false, detail: "Missing task client header" },
+      userId,
+      403
+    );
+  }
+
   let payload: Record<string, unknown>;
 
   try {
@@ -35,6 +51,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const proofResult = await consumeTask052ClickProof(
+    userId,
+    payload.click_proof,
+    "open_checkout",
+    { hotel_id: hotelId, room }
+  );
+  if (!proofResult.ok) {
+    return createResponseWithCookie(
+      { allowed: false, detail: proofResult.detail, flow },
+      userId,
+      proofResult.status
+    );
+  }
+
   const checkout = {
     hotel_id: TASK052_TARGET_HOTEL_ID,
     hotel_name: TASK052_TARGET_HOTEL_NAME,
@@ -47,7 +77,12 @@ export async function POST(request: NextRequest) {
   );
 
   return createResponseWithCookie(
-    { allowed: true, next: "/checkout", flow: nextFlow },
+    {
+      allowed: true,
+      next: "/checkout",
+      next_click_challenge: proofResult.next_challenge,
+      flow: nextFlow,
+    },
     userId
   );
 }

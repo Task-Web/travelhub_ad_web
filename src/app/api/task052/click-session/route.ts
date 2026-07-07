@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
-import { consumeTask052ClickProof } from "@/lib/task052-click-sessions";
-import { patchTask052Flow } from "@/lib/task052-flow";
+import { createTask052ClickSession } from "@/lib/task052-click-sessions";
 import {
   TASK052_CLIENT_HEADER_NAME,
   TASK052_CLIENT_HEADER_VALUE,
 } from "@/lib/task052-protocol";
 
-// POST /api/task052/ad-closed - Record closing the search-page ad popup.
+// POST /api/task052/click-session - Register the page's non-exportable click signing key.
 export async function POST(request: NextRequest) {
   const userId = await getUserId(request);
+
   if (
     request.headers.get(TASK052_CLIENT_HEADER_NAME) !==
     TASK052_CLIENT_HEADER_VALUE
@@ -28,27 +28,25 @@ export async function POST(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
-  const proofResult = await consumeTask052ClickProof(
+  const result = await createTask052ClickSession(
     userId,
-    payload.click_proof,
-    "close_ad"
+    payload.public_key,
+    payload.page_token
   );
-  if (!proofResult.ok) {
+  if (!result.ok) {
     return createResponseWithCookie(
-      { allowed: false, detail: proofResult.detail },
+      { allowed: false, detail: result.detail },
       userId,
-      proofResult.status
+      result.status
     );
   }
 
-  const flow = await patchTask052Flow(
-    userId,
-    { ad_closed: true },
-    "Task 052 ad closed"
-  );
-
   return createResponseWithCookie(
-    { allowed: true, next_click_challenge: proofResult.next_challenge, flow },
+    {
+      allowed: true,
+      click_session_id: result.session_id,
+      click_challenge: result.challenge,
+    },
     userId
   );
 }
