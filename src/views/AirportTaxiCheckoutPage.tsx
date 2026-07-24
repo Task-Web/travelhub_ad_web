@@ -169,7 +169,6 @@ export default function AirportTaxiCheckoutPage() {
           location: `${pickupLocation} → ${dropoffLocation}`,
           checkIn: date,
           checkOut: date,
-          status: 'confirmed',
           totalPrice: Number(totalPrice.toFixed(2)),
           currency: 'EUR',
           guestName: `${formData.firstName} ${formData.lastName}`.trim(),

@@ -170,7 +170,6 @@ export default function AttractionsCheckoutPage() {
         location: displayAttraction.location,
         checkIn: date,
         checkOut: date,
-        status: 'confirmed',
         totalPrice: Number(total.toFixed(2)),
         currency: displayAttraction.currency || 'EUR',
         guestName: `${formData.firstName} ${formData.lastName}`.trim(),

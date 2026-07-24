@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { stateApi } from '@/api/client';
+import { accountSessionApi } from '@/api/client';
 
 // Extended language list for the sign-in page (47+ languages)
 const languages = [
@@ -143,14 +143,7 @@ export default function SignInPage() {
     if (newCode.every((c) => c) && newCode.join('').length === 6) {
       // Persist authentication state and navigate
       try {
-        await stateApi.patchState({
-          auth: {
-            isAuthenticated: true,
-            provider: 'email',
-            email: email,
-            authenticatedAt: new Date().toISOString(),
-          },
-        }, 'Authenticated via email verification');
+        await accountSessionApi.signIn(email, 'email');
       } catch (error) {
         console.error('Failed to save auth state:', error);
       }
@@ -188,14 +181,7 @@ export default function SignInPage() {
     setIsAuthenticating(true);
     // Simulate OAuth authentication and persist to backend
     try {
-      await stateApi.patchState({
-        auth: {
-          isAuthenticated: true,
-          provider: oauthProvider,
-          email: `user@${oauthProvider}.com`,
-          authenticatedAt: new Date().toISOString(),
-        },
-      }, `Authenticated via ${oauthProvider} OAuth`);
+      if (oauthProvider) await accountSessionApi.signIn(`user@${oauthProvider}.com`, oauthProvider);
     } catch (error) {
       console.error('Failed to save auth state:', error);
     }
@@ -353,14 +339,7 @@ export default function SignInPage() {
                 onClick={async () => {
                   // Persist authentication state and navigate
                   try {
-                    await stateApi.patchState({
-                      auth: {
-                        isAuthenticated: true,
-                        provider: 'email',
-                        email: email,
-                        authenticatedAt: new Date().toISOString(),
-                      },
-                    }, 'Authenticated via email verification');
+                    await accountSessionApi.signIn(email, 'email');
                   } catch (error) {
                     console.error('Failed to save auth state:', error);
                   }

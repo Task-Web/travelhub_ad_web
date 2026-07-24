@@ -67,14 +67,14 @@ export interface StateResponse<T extends Record<string, unknown> = DefaultStateD
   state: UserState<T>;
 }
 
-// Request body for PUT /api/state
+// Control-plane state replacement request
 export interface StateRequest<T extends Record<string, unknown> = Record<string, unknown>> {
   data: T;
   note?: string | null;
   meta?: Partial<StateMeta>;
 }
 
-// Request body for PATCH /api/state
+// Control-plane state patch request
 export interface StatePatchRequest<T extends Record<string, unknown> = Record<string, unknown>> {
   data: Partial<T>;
   note?: string | null;

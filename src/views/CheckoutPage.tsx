@@ -222,21 +222,13 @@ export default function CheckoutPage() {
           if (!cancelled) {
             setTask052Checkout(checkout);
           }
-          await fetch('/api/state', {
-            method: 'PATCH',
+          await fetch('/api/task052/checkout-visited', {
+            method: 'POST',
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              data: {
-                task052: {
-                  checkout_page_visited: true,
-                  checkout,
-                },
-              },
-              note: 'Task 052 checkout reached',
-            }),
+            body: '{}',
           });
           if (!cancelled) {
             setIsCheckoutGateReady(true);
@@ -409,7 +401,6 @@ export default function CheckoutPage() {
           location: hotel.address,
           checkIn,
           checkOut,
-          status: 'confirmed',
           totalPrice: Number(total.toFixed(2)),
           currency: 'EUR',
           guestName: `${firstName} ${lastName}`.trim(),

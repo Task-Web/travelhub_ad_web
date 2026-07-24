@@ -97,27 +97,28 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 export const baseUrl = API_BASE;
 
 /**
- * State management API (preserves basesite compatibility)
+ * Product bootstrap and account APIs
  */
-export const stateApi = {
-  getState: () => request<{ user_id: string; state: Record<string, unknown> }>('/state'),
+export const travelWorkspaceApi = {
+  get: () => request<{ user_id: string; workspace: Record<string, unknown> }>('/travel-workspace'),
+};
 
-  replaceState: (data: Record<string, unknown>, note?: string, meta?: Record<string, unknown>) =>
-    request<{ user_id: string; state: Record<string, unknown> }>('/state', {
-      method: 'PUT',
-      body: { data, note, meta },
-    }),
+export const accountSessionApi = {
+  get: () => request<{ session: { isAuthenticated?: boolean; email?: string; provider?: string } }>('/account/session'),
+  signIn: (email: string, provider: string) => request<{ session: Record<string, unknown> }>('/account/session', { method: 'POST', body: { email, provider } }),
+};
 
-  patchState: (data: Record<string, unknown>, note?: string) =>
-    request<{ user_id: string; state: Record<string, unknown> }>('/state', {
-      method: 'PATCH',
-      body: { data, note },
-    }),
+export interface PropertyListingDraft {
+  selectedType: string | null;
+  formData: { email: string; propertyName: string; address: string };
+  showWizard: boolean;
+  currentStep: number;
+}
 
-  resetState: () =>
-    request<{ user_id: string; state: Record<string, unknown> }>('/state', {
-      method: 'DELETE',
-    }),
+export const propertyListingApi = {
+  get: () => request<{ listing: PropertyListingDraft | null }>('/property-listing'),
+  save: (listing: PropertyListingDraft) => request<{ listing: PropertyListingDraft }>('/property-listing', { method: 'PUT', body: listing }),
+  complete: () => request<{ completed: true }>('/property-listing', { method: 'DELETE' }),
 };
 
 /**
@@ -205,6 +206,62 @@ interface Booking {
   status: string;
   createdAt: string;
   details?: Record<string, unknown>;
+}
+
+interface BookingFlightLeg {
+  airline: string;
+  flightNumber: string;
+  departure: string;
+  arrival: string;
+  departureTime: string;
+  arrivalTime: string;
+  duration: string;
+  stops: number;
+}
+
+interface BookingDetails {
+  time?: string;
+  ticketType?: string;
+  quantity?: number;
+  pricePerTicket?: number;
+  category?: string;
+  duration?: string;
+  adults?: number;
+  children?: number;
+  rooms?: number;
+  specialRequests?: string;
+  paymentMethod?: string;
+  origin?: string;
+  destination?: string;
+  flight?: { outbound: BookingFlightLeg; return: BookingFlightLeg };
+  roomType?: string;
+  boardBasis?: string;
+  travelers?: number;
+  pickupLocation?: string;
+  dropoffLocation?: string;
+  pickupTime?: string;
+  dropoffTime?: string;
+  transmission?: string;
+  seats?: number;
+  doors?: number;
+  insurance?: string;
+  passengers?: number;
+  vehicleType?: string;
+}
+
+interface CreateBookingInput {
+  type: 'hotel' | 'car' | 'attraction';
+  confirmationNumber: string;
+  propertyName: string;
+  location: string;
+  checkIn: string;
+  checkOut: string;
+  totalPrice: number;
+  currency: string;
+  guestName: string;
+  roomType?: string;
+  image?: string;
+  details: BookingDetails;
 }
 
 interface CartItem {
@@ -456,7 +513,7 @@ export const bookingsApi = {
   getById: (id: string) =>
     request<{ booking: Booking }>(`/bookings/${id}`),
 
-  create: (booking: Record<string, unknown>) =>
+  create: (booking: CreateBookingInput) =>
     request<{ booking: Booking; message: string }>('/bookings', {
       method: 'POST',
       body: booking,
@@ -528,12 +585,19 @@ interface SearchQuery {
   cabinClass?: string;
   tripType?: string;
   timestamp?: string;
-  [key: string]: unknown;
+}
+
+interface SearchFilters {
+  directOnly?: boolean;
+  maxPrice?: number;
+  minRating?: number;
+  stops?: number;
+  airlines?: string[];
 }
 
 interface SearchState {
   lastQuery: SearchQuery | null;
-  filters: Record<string, unknown>;
+  filters: SearchFilters;
   history: SearchQuery[];
 }
 
@@ -541,9 +605,9 @@ interface SearchState {
  * Search API (state-driven)
  */
 export const searchApi = {
-  getState: () => request<{ search: SearchState }>('/search'),
+  get: () => request<{ search: SearchState }>('/search'),
 
-  updateState: (searchData: { lastQuery?: SearchQuery; filters?: Record<string, unknown> }) =>
+  updateState: (searchData: { lastQuery?: Omit<SearchQuery, 'timestamp'> | null; filters?: SearchFilters }) =>
     request<{ search: SearchState; message: string }>('/search', {
       method: 'PATCH',
       body: searchData,
@@ -627,10 +691,6 @@ export const filesApi = {
 // Backward compatible api object for legacy code
 export const api = {
   baseUrl: API_BASE,
-  getState: stateApi.getState,
-  replaceState: stateApi.replaceState,
-  patchState: stateApi.patchState,
-  resetState: stateApi.resetState,
   getInfo: systemApi.getInfo,
   uploadFiles: filesApi.upload,
   // New state-driven APIs

@@ -47,6 +47,17 @@ export async function PATCH(
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
+  const allowed = ["status", "checkIn", "checkOut", "guestName", "specialRequests"];
+  if (Object.keys(updates).some((key) => !allowed.includes(key))) {
+    return createResponseWithCookie({ detail: "Unknown or internal fields are not allowed" }, userId, 422);
+  }
+  if ("status" in updates && (typeof updates.status !== "string" || !["confirmed", "pending", "cancelled", "completed"].includes(updates.status))) {
+    return createResponseWithCookie({ detail: "Invalid booking status" }, userId, 422);
+  }
+  if (Object.entries(updates).some(([key, value]) => key !== "status" && typeof value !== "string")) {
+    return createResponseWithCookie({ detail: "Invalid booking update" }, userId, 422);
+  }
+
   const state = await stateStore.getState(userId);
   const bookings = getBookings(state.data as Record<string, unknown>);
   const index = bookings.findIndex((item) => String(item.id) === bookingId);
@@ -58,6 +69,10 @@ export async function PATCH(
     );
     setUserCookie(response, userId);
     return response;
+  }
+
+  if (bookings[index].status === "cancelled" && updates.status !== "cancelled") {
+    return createResponseWithCookie({ detail: "Cancelled bookings cannot be changed" }, userId, 409);
   }
 
   const updated = {

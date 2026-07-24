@@ -4,7 +4,7 @@
  * STATE-DRIVEN ARCHITECTURE:
  * - Backend state is the single source of truth for ALL displayable content
  * - Frontend reads from state and displays accordingly
- * - Users can customize all data via /state-manage
+ * - Product data is loaded and updated through feature APIs
  *
  * This store syncs with backend state and provides:
  * - User preferences (currency, language)
@@ -15,7 +15,7 @@
  */
 
 import { create } from 'zustand';
-import { stateApi } from '@/api/client';
+import { cartApi, preferencesApi, travelWorkspaceApi } from '@/api/client';
 
 // Currency options
 export const CURRENCIES = [
@@ -233,7 +233,6 @@ interface AppState {
 
   // Sync with backend (state-driven)
   syncWithBackend: () => Promise<void>;
-  saveToBackend: () => Promise<void>;
 }
 
 const defaultStaysSearch: StaysSearch = {
@@ -309,7 +308,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       preferences: { ...state.preferences, currency },
     }));
     // Save to backend
-    get().saveToBackend();
+    void preferencesApi.update({ currency });
   },
 
   setLanguage: (language) => {
@@ -317,7 +316,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       preferences: { ...state.preferences, language },
     }));
     // Save to backend
-    get().saveToBackend();
+    void preferencesApi.update({ language });
   },
 
   // Search actions
@@ -360,7 +359,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       total: cart.total + (item.price || 0),
     };
     set({ cart: newCart });
-    get().saveToBackend();
+    void cartApi.addItem(newItem);
   },
 
   removeFromCart: (itemId) => {
@@ -371,25 +370,25 @@ export const useAppStore = create<AppState>((set, get) => ({
       total: cart.total - (itemToRemove?.price || 0),
     };
     set({ cart: newCart });
-    get().saveToBackend();
+    void cartApi.removeItem(itemId);
   },
 
   clearCart: () => {
     set({ cart: { items: [], total: 0 } });
-    get().saveToBackend();
+    void cartApi.clear();
   },
 
   // Backend sync - SINGLE SOURCE OF TRUTH
   syncWithBackend: async () => {
     try {
       set({ isSyncing: true });
-      const response = await stateApi.getState();
-      const { user_id, state } = response;
+      const response = await travelWorkspaceApi.get();
+      const { user_id, workspace } = response;
 
       set({ userId: user_id });
 
       // Extract all data from backend state (single source of truth)
-      const data = state?.data as Record<string, unknown> | undefined;
+      const data = workspace;
       if (data) {
         // Preferences
         if (data.preferences) {
@@ -450,21 +449,4 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  saveToBackend: async () => {
-    try {
-      const state = get();
-      await stateApi.patchState({
-        preferences: state.preferences,
-        cart: state.cart,
-        bookings: state.bookings,
-        search: {
-          staysSearch: state.staysSearch,
-          flightsSearch: state.flightsSearch,
-          carsSearch: state.carsSearch,
-        },
-      });
-    } catch (error) {
-      console.error('Failed to save to backend:', error);
-    }
-  },
 }));

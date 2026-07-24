@@ -24,6 +24,17 @@ export async function PATCH(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
+  const allowed = ["currency", "language", "dateFormat", "measurementUnit"];
+  if (Object.keys(payload).some((key) => !allowed.includes(key))) {
+    return createResponseWithCookie({ detail: "Unknown or internal fields are not allowed" }, userId, 422);
+  }
+  if ("currency" in payload && (typeof payload.currency !== "string" || !["USD", "EUR", "GBP", "HKD", "JPY", "CNY", "AUD", "CAD", "CHF", "SGD"].includes(payload.currency))) {
+    return createResponseWithCookie({ detail: "Invalid currency" }, userId, 422);
+  }
+  if ("language" in payload && typeof payload.language !== "string") {
+    return createResponseWithCookie({ detail: "Invalid language" }, userId, 422);
+  }
+
   const state = await stateStore.getState(userId);
   const currentPrefs =
     ((state.data as Record<string, unknown>).preferences as Record<string, unknown>) ||

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { stateApi, bookingsApi } from '@/api/client';
+import { accountSessionApi, bookingsApi } from '@/api/client';
 
 interface Trip {
   id: string;
@@ -42,11 +42,7 @@ export default function ManageTripsPage() {
     const loadFromBackend = async () => {
       setIsLoading(true);
       try {
-        const { state } = await stateApi.getState();
-        const data = state?.data as Record<string, unknown> | undefined;
-
-        // Check auth state from backend
-        const auth = data?.auth as { isAuthenticated?: boolean; email?: string } | undefined;
+        const { session: auth } = await accountSessionApi.get();
         if (auth?.isAuthenticated) {
           setIsLoggedIn(true);
           setEmail(auth.email || '');
@@ -73,13 +69,7 @@ export default function ManageTripsPage() {
     if (email.trim()) {
       try {
         // Save auth state to backend
-        await stateApi.patchState({
-          auth: {
-            isAuthenticated: true,
-            email: email,
-            authenticatedAt: new Date().toISOString(),
-          },
-        }, 'User signed in via email on trips page');
+        await accountSessionApi.signIn(email, 'email');
         setIsLoggedIn(true);
         const bookingsResponse = await bookingsApi.getAll();
         const bookings = Array.isArray(bookingsResponse.bookings)
@@ -96,14 +86,7 @@ export default function ManageTripsPage() {
     const userEmail = `user@${provider}.com`;
     try {
       // Save auth state to backend
-      await stateApi.patchState({
-        auth: {
-          isAuthenticated: true,
-          provider: provider,
-          email: userEmail,
-          authenticatedAt: new Date().toISOString(),
-        },
-      }, `User signed in via ${provider} OAuth on trips page`);
+      await accountSessionApi.signIn(userEmail, provider);
       setIsLoggedIn(true);
       const bookingsResponse = await bookingsApi.getAll();
       const bookings = Array.isArray(bookingsResponse.bookings)

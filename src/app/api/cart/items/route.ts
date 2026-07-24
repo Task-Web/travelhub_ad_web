@@ -14,6 +14,20 @@ export async function POST(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
+  const details = item.details;
+  const detailKeys = ["itemId", "productId", "startDate", "endDate", "travelers", "quantity", "roomType", "cabinClass", "pickupLocation", "dropoffLocation"];
+  const detailsValid = details === undefined || (Boolean(details)
+    && typeof details === "object" && !Array.isArray(details)
+    && Object.keys(details as Record<string, unknown>).every((key) => detailKeys.includes(key))
+    && Object.values(details as Record<string, unknown>).every((value) => ["string", "number", "boolean"].includes(typeof value)));
+  if (Object.keys(item).some((key) => !["id", "type", "name", "price", "details"].includes(key))
+    || ("id" in item && typeof item.id !== "string")
+    || typeof item.type !== "string" || typeof item.name !== "string"
+    || typeof item.price !== "number" || !Number.isFinite(item.price) || item.price < 0
+    || !detailsValid) {
+    return createResponseWithCookie({ detail: "Invalid cart item" }, userId, 422);
+  }
+
   const state = await stateStore.getState(userId);
   const cart =
     ((state.data as Record<string, unknown>).cart as Record<string, unknown>) || {
@@ -21,7 +35,7 @@ export async function POST(request: NextRequest) {
       total: 0,
     };
 
-  const items = Array.isArray(cart.items) ? cart.items : [];
+  const items = Array.isArray(cart.items) ? [...cart.items] : [];
   if (!item.id) {
     item.id = uuidv4().replace(/-/g, "").slice(0, 8);
   }

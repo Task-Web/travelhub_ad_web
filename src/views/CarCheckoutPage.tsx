@@ -195,7 +195,6 @@ export default function CarCheckoutPage() {
           location: pickupLocation,
           checkIn: pickupDate,
           checkOut: dropoffDate,
-          status: 'confirmed',
           totalPrice: Number(totalPrice.toFixed(2)),
           currency: 'EUR',
           guestName: `${formData.firstName} ${formData.lastName}`.trim(),

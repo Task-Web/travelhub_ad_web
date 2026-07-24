@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { stateApi } from '@/api/client';
+import { accountSessionApi } from '@/api/client';
 
 type OAuthProvider = 'google' | 'apple' | 'facebook' | null;
 
@@ -53,14 +53,7 @@ export default function RegisterPage() {
     setIsAuthenticating(true);
     // Simulate OAuth authentication and persist to backend
     try {
-      await stateApi.patchState({
-        auth: {
-          isAuthenticated: true,
-          provider: oauthProvider,
-          email: `user@${oauthProvider}.com`,
-          authenticatedAt: new Date().toISOString(),
-        },
-      }, `Registered and authenticated via ${oauthProvider} OAuth`);
+      if (oauthProvider) await accountSessionApi.signIn(`user@${oauthProvider}.com`, oauthProvider);
     } catch (error) {
       console.error('Failed to save auth state:', error);
     }

@@ -21,6 +21,9 @@ export async function DELETE(
   const filteredItems = items.filter(
     (entry) => String((entry as Record<string, unknown>).id) !== itemId
   );
+  if (filteredItems.length === items.length) {
+    return createResponseWithCookie({ detail: "Cart item not found" }, userId, 404);
+  }
   const total = filteredItems.reduce(
     (sum, entry) => sum + Number((entry as Record<string, unknown>).price || 0),
     0

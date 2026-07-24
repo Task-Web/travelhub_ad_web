@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { stateApi } from '@/api/client';
+import { propertyListingApi } from '@/api/client';
 
 const propertyTypes = [
   { id: 'hotel', name: 'Hotel', description: 'Accommodations for travellers with multiple rooms', icon: '🏨' },
@@ -43,14 +43,7 @@ export default function ListPropertyPage() {
   useEffect(() => {
     const loadSavedData = async () => {
       try {
-        const { state } = await stateApi.getState();
-        const data = state?.data as Record<string, unknown> | undefined;
-        const propertyListing = data?.propertyListing as {
-          selectedType?: string;
-          formData?: { email: string; propertyName: string; address: string };
-          showWizard?: boolean;
-          currentStep?: number;
-        } | undefined;
+        const { listing: propertyListing } = await propertyListingApi.get();
 
         if (propertyListing) {
           if (propertyListing.selectedType) {
@@ -84,14 +77,12 @@ export default function ListPropertyPage() {
     currentStep?: number;
   }) => {
     try {
-      await stateApi.patchState({
-        propertyListing: {
-          selectedType: updates.selectedType ?? selectedType,
-          formData: updates.formData ?? formData,
-          showWizard: updates.showWizard ?? showWizard,
-          currentStep: updates.currentStep ?? currentStep,
-        },
-      }, 'Updated property listing form data');
+      await propertyListingApi.save({
+        selectedType: updates.selectedType !== undefined ? updates.selectedType : selectedType,
+        formData: updates.formData ?? formData,
+        showWizard: updates.showWizard ?? showWizard,
+        currentStep: updates.currentStep ?? currentStep,
+      });
     } catch (error) {
       console.error('Failed to save property listing data:', error);
     }
@@ -181,7 +172,7 @@ export default function ListPropertyPage() {
       saveToBackend({ currentStep: newStep });
     } else {
       // Final step - clear saved data and navigate to success
-      stateApi.patchState({ propertyListing: null }, 'Property listing completed');
+      void propertyListingApi.complete();
       navigate('/');
     }
   };

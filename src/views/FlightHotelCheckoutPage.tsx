@@ -242,7 +242,6 @@ export default function FlightHotelCheckoutPage() {
           location: `${origin} → ${destination}`,
           checkIn: checkin,
           checkOut: checkout,
-          status: 'confirmed',
           totalPrice: Number(totalPrice.toFixed(2)),
           currency: displayPackage.currency || 'EUR',
           guestName: `${formData.firstName} ${formData.lastName}`.trim(),
