@@ -6,6 +6,11 @@ import {
   updateTask052ClickChallenge,
 } from '../lib/task052-client';
 import { createTask052JsonHeaders } from '../lib/task052-protocol';
+import {
+  TASK052_TARGET_HOTEL_ID,
+  TASK052_TARGET_HOTEL_NAME,
+  isTask052TargetSelection,
+} from '../lib/task052-target';
 
 // Category ratings type
 interface CategoryRating {
@@ -58,9 +63,6 @@ interface HotelSurroundings {
   publicTransport: SurroundingItem[];
   closestAirports: SurroundingItem[];
 }
-
-const TASK052_TARGET_HOTEL_ID = 'hotel-paris-1';
-const TASK052_TARGET_HOTEL_NAME = 'Le Meurice';
 
 // Mock property data (same as SearchResultsPage for consistency)
 const mockProperties: Record<string, {
@@ -819,7 +821,6 @@ export default function PropertyDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
-  const [showDatePrompt, setShowDatePrompt] = useState(false);
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [showRoomSelectionModal, setShowRoomSelectionModal] = useState(false);
   const [expandedFAQs, setExpandedFAQs] = useState<Set<number>>(new Set());
@@ -964,11 +965,6 @@ export default function PropertyDetailPage() {
     setShowLoginPrompt(false);
   };
 
-  // Check if dates are provided in URL
-  const checkIn = searchParams.get('checkin');
-  const checkOut = searchParams.get('checkout');
-  const hasDates = !!(checkIn && checkOut);
-
   // Handle keyboard for gallery modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1001,15 +997,6 @@ export default function PropertyDetailPage() {
     setExpandedReviews(newExpanded);
   };
 
-  const handleShowPrices = () => {
-    if (!hasDates) {
-      setShowDatePrompt(true);
-    } else {
-      const element = document.getElementById('rooms');
-      element?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const handleContinueToBooking = async (event: ReactMouseEvent<HTMLButtonElement>) => {
     if (!selectedRoom || !property) {
       return;
@@ -1020,7 +1007,7 @@ export default function PropertyDetailPage() {
       return;
     }
 
-    if (property.id === TASK052_TARGET_HOTEL_ID) {
+    if (isTask052TargetSelection(property.id, selectedRoomData.name)) {
       if (!event.nativeEvent.isTrusted) {
         return;
       }
@@ -1401,7 +1388,6 @@ export default function PropertyDetailPage() {
                       <th className="px-4 py-3 text-left font-medium">Sleeps</th>
                       <th className="px-4 py-3 text-left font-medium">Price for 1 night</th>
                       <th className="px-4 py-3 text-left font-medium">Your choices</th>
-                      <th className="px-4 py-3 text-left font-medium"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1468,14 +1454,6 @@ export default function PropertyDetailPage() {
                                 Breakfast included
                               </p>
                             )}
-                          </td>
-                          <td className="px-4 py-4">
-                            <button
-                              className="px-4 py-2 bg-booking-blue-light text-white font-medium rounded hover:bg-booking-blue transition-colors whitespace-nowrap"
-                              onClick={handleShowPrices}
-                            >
-                              Show prices
-                            </button>
                           </td>
                         </tr>
                       );
@@ -1869,32 +1847,6 @@ export default function PropertyDetailPage() {
                     Open in Google Maps
                   </p>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Date prompt dialog */}
-        {showDatePrompt && (
-          <div className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="font-bold text-neutral-800 text-lg mb-4">Select your dates</h3>
-              <p className="text-neutral-600 mb-6">
-                Please select your check-in and check-out dates to see prices and availability for this room.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  className="flex-1 py-3 border border-neutral-300 text-neutral-700 font-medium rounded hover:bg-neutral-50 transition-colors"
-                  onClick={() => setShowDatePrompt(false)}
-                >
-                  Cancel
-                </button>
-                <Link
-                  to={`/search?destination=London`}
-                  className="flex-1 py-3 bg-booking-blue-light text-white font-medium rounded hover:bg-booking-blue transition-colors text-center"
-                >
-                  Select dates
-                </Link>
               </div>
             </div>
           </div>

@@ -1,9 +1,16 @@
 import { stateStore } from "./state-store";
+import {
+  TASK052_TARGET_HOTEL_ID,
+  TASK052_TARGET_HOTEL_NAME,
+  TASK052_TARGET_ROOM,
+} from "./task052-target";
 import type { UserState } from "./types";
 
-export const TASK052_TARGET_HOTEL_ID = "hotel-paris-1";
-export const TASK052_TARGET_HOTEL_NAME = "Le Meurice";
-export const TASK052_TARGET_ROOM = "Deluxe Suite";
+export {
+  TASK052_TARGET_HOTEL_ID,
+  TASK052_TARGET_HOTEL_NAME,
+  TASK052_TARGET_ROOM,
+} from "./task052-target";
 
 export interface Task052Checkout {
   hotel_id: string;

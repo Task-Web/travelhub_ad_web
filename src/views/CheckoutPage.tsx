@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import NextLink from 'next/link';
 import { bookingsApi } from '@/api/client';
+import {
+  TASK052_TARGET_HOTEL_ID,
+  TASK052_TARGET_HOTEL_NAME,
+  TASK052_TARGET_ROOM,
+  isTask052TargetSelection,
+  shouldUseTask052CheckoutFlow,
+} from '../lib/task052-target';
 
 // Country code type
 interface CountryCode {
@@ -72,9 +79,6 @@ interface Task052FlowResponse {
   };
 }
 
-const TASK052_TARGET_HOTEL_ID = 'hotel-paris-1';
-const TASK052_TARGET_HOTEL_NAME = 'Le Meurice';
-const TASK052_TARGET_ROOM = 'Deluxe Suite';
 const TASK052_SEARCH_URL = '/search?destination=Paris';
 
 export default function CheckoutPage() {
@@ -84,17 +88,26 @@ export default function CheckoutPage() {
   const queryHotelId = searchParams.get('hotel_id');
   const queryHotelName = searchParams.get('hotel_name') || '';
   const queryRoomType = searchParams.get('room') || '';
-  const isTask052TargetQuery =
-    queryHotelId === TASK052_TARGET_HOTEL_ID ||
-    queryHotelName === TASK052_TARGET_HOTEL_NAME ||
-    queryRoomType === TASK052_TARGET_ROOM;
+  const useTask052CheckoutFlow = shouldUseTask052CheckoutFlow({
+    hotelId: queryHotelId,
+    hotelName: queryHotelName,
+    room: queryRoomType,
+  });
+  const isTask052TargetQuery = isTask052TargetSelection(
+    queryHotelId,
+    queryRoomType
+  );
   const [task052Checkout, setTask052Checkout] = useState<Task052Checkout | null>(null);
   const [isCheckoutGateReady, setIsCheckoutGateReady] = useState(false);
+  const activeTask052Checkout = useTask052CheckoutFlow ? task052Checkout : null;
 
   // Get booking details from URL params
-  const hotelId = task052Checkout?.hotel_id || queryHotelId || '1';
-  const hotelNameParam = task052Checkout?.hotel_name || queryHotelName;
-  const roomType = task052Checkout?.room || queryRoomType || 'Superior Room';
+  const hotelId =
+    activeTask052Checkout?.hotel_id ||
+    queryHotelId ||
+    (useTask052CheckoutFlow ? TASK052_TARGET_HOTEL_ID : '1');
+  const hotelNameParam = activeTask052Checkout?.hotel_name || queryHotelName;
+  const roomType = activeTask052Checkout?.room || queryRoomType || 'Superior Room';
   const checkIn = searchParams.get('checkin') || '2026-01-20';
   const checkOut = searchParams.get('checkout') || '2026-01-23';
   const adults = parseInt(searchParams.get('adults') || '2');
@@ -106,6 +119,7 @@ export default function CheckoutPage() {
   interface HotelData {
     id: string;
     name: string;
+    city: string;
     address: string;
     image: string;
     starRating: number;
@@ -117,6 +131,7 @@ export default function CheckoutPage() {
   const [hotel, setHotel] = useState<HotelData>({
     id: hotelId,
     name: hotelNameParam || 'Loading...',
+    city: hotelId === TASK052_TARGET_HOTEL_ID ? 'Paris' : 'Destination',
     address: 'Loading...',
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
     starRating: 4,
@@ -133,6 +148,7 @@ export default function CheckoutPage() {
       ...current,
       id: hotelId,
       name: hotelNameParam || 'Loading...',
+      city: hotelId === TASK052_TARGET_HOTEL_ID ? 'Paris' : 'Destination',
       address: 'Loading...',
       pricePerNight: priceParam || current.pricePerNight,
     }));
@@ -147,6 +163,11 @@ export default function CheckoutPage() {
           if (data.hotel) {
             const h = data.hotel;
             const location = h.location as { city?: string; country?: string; address?: string } | undefined;
+            const selectedRoom = Array.isArray(h.roomTypes)
+              ? h.roomTypes.find(
+                  (candidate: { name?: string }) => candidate.name === roomType
+                )
+              : undefined;
             const getReviewLabel = (score: number) => {
               if (score >= 9) return 'Superb';
               if (score >= 8) return 'Very Good';
@@ -158,6 +179,7 @@ export default function CheckoutPage() {
               setHotel({
                 id: h.id,
                 name: h.name || hotelNameParam,
+                city: location?.city || 'Destination',
                 address: location ? `${location.address || ''}, ${location.city || ''}, ${location.country || ''}` : 'Address not available',
                 image: (h.images && h.images[0] && !h.images[0].startsWith('/images/'))
                   ? h.images[0]
@@ -165,7 +187,7 @@ export default function CheckoutPage() {
                 starRating: h.starRating || 4,
                 reviewScore: h.reviewScore || 8.0,
                 reviewLabel: getReviewLabel(h.reviewScore || 8.0),
-                pricePerNight: h.pricePerNight || priceParam || 185,
+                pricePerNight: priceParam || selectedRoom?.price || h.pricePerNight || 185,
               });
             }
           }
@@ -183,7 +205,7 @@ export default function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [hotelId, hotelNameParam, priceParam]);
+  }, [hotelId, hotelNameParam, priceParam, roomType]);
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -205,6 +227,14 @@ export default function CheckoutPage() {
     let cancelled = false;
 
     const verifyTask052Checkout = async () => {
+      if (!useTask052CheckoutFlow) {
+        setTask052Checkout(null);
+        setIsCheckoutGateReady(true);
+        return;
+      }
+
+      setIsCheckoutGateReady(false);
+
       try {
         const response = await fetch('/api/task052/flow', {
           credentials: 'include',
@@ -236,7 +266,7 @@ export default function CheckoutPage() {
           return;
         }
 
-        if (data.initialized === true || isTask052TargetQuery) {
+        if (data.initialized === true) {
           if (!cancelled) {
             navigate(TASK052_SEARCH_URL, { replace: true });
           }
@@ -262,7 +292,7 @@ export default function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [isTask052TargetQuery, navigate]);
+  }, [isTask052TargetQuery, navigate, useTask052CheckoutFlow]);
 
   // Calculate dates
   const checkInDate = new Date(checkIn);
@@ -443,7 +473,12 @@ export default function CheckoutPage() {
           <nav className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm">
             <Link to="/" className="text-booking-blue-light hover:underline">Home</Link>
             <span className="text-neutral-400">&gt;</span>
-            <Link to="/search" className="text-booking-blue-light hover:underline">London</Link>
+            <Link
+              to={`/search?destination=${encodeURIComponent(hotel.city)}`}
+              className="text-booking-blue-light hover:underline"
+            >
+              {hotel.city}
+            </Link>
             <span className="text-neutral-400">&gt;</span>
             <Link to={`/hotel/${hotelId}`} className="text-booking-blue-light hover:underline truncate max-w-[120px] sm:max-w-none">{hotel.name}</Link>
             <span className="text-neutral-400">&gt;</span>

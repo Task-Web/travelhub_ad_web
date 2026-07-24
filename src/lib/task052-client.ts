@@ -1,3 +1,4 @@
+import { p256 } from "@noble/curves/nist.js";
 import {
   createTask052ClickProofMessage,
   createTask052JsonHeaders,
@@ -17,7 +18,9 @@ interface Task052ClickSessionResponse {
 interface Task052ClickSession {
   id: string;
   challenge: string;
-  privateKey: CryptoKey;
+  signer:
+    | { type: "webcrypto"; privateKey: CryptoKey }
+    | { type: "noble"; secretKey: Uint8Array };
 }
 
 type TrustedEventCarrier = Event | { nativeEvent?: Event };
@@ -40,8 +43,7 @@ function assertTrustedEvent(event: TrustedEventCarrier): void {
   }
 }
 
-function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
+function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
@@ -52,17 +54,54 @@ function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
     .replace(/=+$/g, "");
 }
 
-async function createClickSession(): Promise<Task052ClickSession> {
-  if (!task052PageToken) {
-    throw new Error("Task 052 page token is not available");
-  }
+function createNobleP256KeyPair(): {
+  publicKey: JsonWebKey;
+  secretKey: Uint8Array;
+} {
+  const { secretKey } = p256.keygen();
+  const publicKeyBytes = p256.getPublicKey(secretKey, false);
 
-  const keyPair = await crypto.subtle.generateKey(
-    { name: "ECDSA", namedCurve: "P-256" },
-    false,
-    ["sign", "verify"]
-  );
-  const publicKey = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+  return {
+    publicKey: {
+      kty: "EC",
+      crv: "P-256",
+      x: bytesToBase64Url(publicKeyBytes.slice(1, 33)),
+      y: bytesToBase64Url(publicKeyBytes.slice(33, 65)),
+      ext: true,
+      key_ops: ["verify"],
+    },
+    secretKey,
+  };
+}
+
+function assertTask052PageCanCreateSession(): void {
+  if (
+    typeof window !== "undefined" &&
+    new URL(window.location.href).searchParams.has("cookie")
+  ) {
+    throw new Error("Task 052 page token is not available with a cookie override");
+  }
+}
+
+async function createClickSession(): Promise<Task052ClickSession> {
+  assertTask052PageCanCreateSession();
+
+  let publicKey: JsonWebKey;
+  let signer: Task052ClickSession["signer"];
+
+  if (crypto.subtle) {
+    const keyPair = await crypto.subtle.generateKey(
+      { name: "ECDSA", namedCurve: "P-256" },
+      false,
+      ["sign", "verify"]
+    );
+    publicKey = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+    signer = { type: "webcrypto", privateKey: keyPair.privateKey };
+  } else {
+    const keyPair = createNobleP256KeyPair();
+    publicKey = keyPair.publicKey;
+    signer = { type: "noble", secretKey: keyPair.secretKey };
+  }
   const response = await fetch("/api/task052/click-session", {
     method: "POST",
     credentials: "include",
@@ -88,7 +127,7 @@ async function createClickSession(): Promise<Task052ClickSession> {
   return {
     id: data.click_session_id,
     challenge: data.click_challenge,
-    privateKey: keyPair.privateKey,
+    signer,
   };
 }
 
@@ -121,19 +160,32 @@ async function signClickProof(
     signed_at: new Date().toISOString(),
   };
   const message = createTask052ClickProofMessage(unsignedProof);
-  const signature = await crypto.subtle.sign(
-    { name: "ECDSA", hash: "SHA-256" },
-    session.privateKey,
-    new TextEncoder().encode(message)
-  );
+  const messageBytes = new TextEncoder().encode(message);
+  const signature =
+    session.signer.type === "webcrypto"
+      ? new Uint8Array(
+          await crypto.subtle.sign(
+            { name: "ECDSA", hash: "SHA-256" },
+            session.signer.privateKey,
+            messageBytes
+          )
+        )
+      : p256.sign(messageBytes, session.signer.secretKey, {
+          format: "compact",
+          prehash: true,
+        });
 
   return {
     ...unsignedProof,
-    signature: arrayBufferToBase64Url(signature),
+    signature: bytesToBase64Url(signature),
   };
 }
 
 export function setTask052PageToken(pageToken: string | null): void {
+  if (!pageToken && task052PageToken) {
+    return;
+  }
+
   task052PageToken = pageToken;
   if (!pageToken) {
     clickSessionPromise = null;

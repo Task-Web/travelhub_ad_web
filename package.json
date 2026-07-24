@@ -12,6 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@noble/curves": "^2.2.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.0",
     "disable-devtool": "^0.3.7",

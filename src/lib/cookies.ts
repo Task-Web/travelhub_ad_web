@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
@@ -20,8 +19,7 @@ export async function getUserId(request: NextRequest): Promise<string> {
   }
 
   // Check for existing cookie
-  const cookieStore = await cookies();
-  const existingCookie = cookieStore.get(COOKIE_NAME);
+  const existingCookie = request.cookies.get(COOKIE_NAME);
   if (existingCookie?.value) {
     return existingCookie.value;
   }

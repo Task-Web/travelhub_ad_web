@@ -1,4 +1,5 @@
 import { webcrypto } from "crypto";
+import { p256 } from "@noble/curves/nist.js";
 import { describe, expect, it } from "vitest";
 import {
   consumeTask052ClickProof,
@@ -25,6 +26,10 @@ function createUserId() {
 
 function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
   return Buffer.from(buffer).toString("base64url");
+}
+
+function bytesToBase64Url(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString("base64url");
 }
 
 async function createProof(
@@ -158,6 +163,53 @@ describe("task052 click sessions", () => {
       { now }
     );
     expect(replayResult.ok).toBe(false);
+  });
+
+  it("accepts the pure JavaScript P-256 signature used on HTTP origins", async () => {
+    const userId = createUserId();
+    const now = new Date("2026-01-01T00:00:00.000Z");
+    const { secretKey } = p256.keygen();
+    const publicKeyBytes = p256.getPublicKey(secretKey, false);
+    const publicKey = {
+      kty: "EC",
+      crv: "P-256",
+      x: bytesToBase64Url(publicKeyBytes.slice(1, 33)),
+      y: bytesToBase64Url(publicKeyBytes.slice(33, 65)),
+      ext: true,
+      key_ops: ["verify"],
+    };
+    const pageToken = await createTask052PageToken(userId, { now });
+    const session = await createTask052ClickSession(userId, publicKey, pageToken, {
+      now,
+    });
+
+    expect(session.ok).toBe(true);
+    if (!session.ok) {
+      return;
+    }
+
+    const unsignedProof = {
+      session_id: session.session_id,
+      challenge: session.challenge,
+      action: "close_ad" as const,
+      target: {},
+      signed_at: now.toISOString(),
+    };
+    const signature = p256.sign(
+      new TextEncoder().encode(createTask052ClickProofMessage(unsignedProof)),
+      secretKey,
+      { format: "compact", prehash: true }
+    );
+
+    expect(
+      await consumeTask052ClickProof(
+        userId,
+        { ...unsignedProof, signature: bytesToBase64Url(signature) },
+        "close_ad",
+        {},
+        { now }
+      )
+    ).toMatchObject({ ok: true });
   });
 
   it("requires a page token and lets a refreshed page replace the old session", async () => {

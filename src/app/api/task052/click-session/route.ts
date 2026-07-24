@@ -1,12 +1,45 @@
 import { NextRequest } from "next/server";
 import { createResponseWithCookie, getUserId } from "@/lib/cookies";
-import { createTask052ClickSession } from "@/lib/task052-click-sessions";
+import {
+  createTask052ClickSession,
+  createTask052PageToken,
+} from "@/lib/task052-click-sessions";
 import {
   TASK052_CLIENT_HEADER_NAME,
   TASK052_CLIENT_HEADER_VALUE,
 } from "@/lib/task052-protocol";
 
-// POST /api/task052/click-session - Register the page's non-exportable click signing key.
+function canBootstrapPageToken(request: NextRequest): boolean {
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (
+    (fetchSite !== null && fetchSite !== "same-origin") ||
+    request.nextUrl.searchParams.has("cookie")
+  ) {
+    return false;
+  }
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const requestHost = request.headers.get("host");
+  if (!origin || !referer || !requestHost) {
+    return false;
+  }
+
+  try {
+    const originUrl = new URL(origin);
+    const refererUrl = new URL(referer);
+    return (
+      originUrl.origin === refererUrl.origin &&
+      refererUrl.host === requestHost &&
+      refererUrl.protocol === request.nextUrl.protocol &&
+      !refererUrl.searchParams.has("cookie")
+    );
+  } catch {
+    return false;
+  }
+}
+
+// POST /api/task052/click-session - Register the page's click verification key.
 export async function POST(request: NextRequest) {
   const userId = await getUserId(request);
 
@@ -28,10 +61,15 @@ export async function POST(request: NextRequest) {
     return createResponseWithCookie({ detail: "Invalid JSON body" }, userId, 400);
   }
 
+  let pageToken = payload.page_token;
+  if ((!pageToken || typeof pageToken !== "string") && canBootstrapPageToken(request)) {
+    pageToken = await createTask052PageToken(userId);
+  }
+
   const result = await createTask052ClickSession(
     userId,
     payload.public_key,
-    payload.page_token
+    pageToken
   );
   if (!result.ok) {
     return createResponseWithCookie(
