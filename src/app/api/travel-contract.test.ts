@@ -8,6 +8,7 @@ import { POST as addCartItem } from "./cart/items/route";
 import { POST as createBooking } from "./bookings/route";
 import { POST as createDispute } from "./disputes/route";
 import { PATCH as saveSearch } from "./search/route";
+import { GET as getTravelWorkspace } from "./travel-workspace/route";
 
 const jsonRequest = (url: string, body: unknown, method = "POST") =>
   new NextRequest(url, {
@@ -17,6 +18,33 @@ const jsonRequest = (url: string, body: unknown, method = "POST") =>
   });
 
 describe("TravelHub feature contracts", () => {
+  it("projects product bootstrap data without evaluator-only fields", async () => {
+    const cookie = "travel-contract.workspace";
+    await patchControl(jsonRequest(
+      `http://localhost/api/state?cookie=${cookie}`,
+      {
+        data: {
+          evaluator_marker: { keep: true },
+          unrelated_internal: { secret: "not-for-browser" },
+          preferences: { currency: "GBP" },
+        },
+      },
+      "PATCH",
+    ));
+
+    const response = await getTravelWorkspace(
+      new NextRequest(`http://localhost/api/travel-workspace?cookie=${cookie}`),
+    );
+    const body = await response.json();
+    expect(body.workspace.preferences.currency).toBe("GBP");
+    expect(body.workspace.evaluator_marker).toBeUndefined();
+    expect(body.workspace.unrelated_internal).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain("not-for-browser");
+
+    const control = await getControl(new NextRequest(`http://localhost/api/state?cookie=${cookie}`));
+    expect((await control.json()).state.data.evaluator_marker).toEqual({ keep: true });
+  });
+
   it("persists an account session and preserves unrelated state", async () => {
     const cookie = "travel-contract.a";
     await patchControl(jsonRequest(
