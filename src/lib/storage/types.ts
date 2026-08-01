@@ -47,4 +47,11 @@ export interface StorageConfig {
   type: "memory" | "custom";
   /** TTL in seconds for state expiration (0 = no expiration) */
   ttl?: number;
+  /** Maximum number of stored states (0 = unlimited) */
+  maxEntries?: number;
+  /** Maximum aggregate serialized state size in bytes (0 = unlimited) */
+  maxTotalBytes?: number;
 }
+
+/** Configuration accepted by the in-memory storage adapter. */
+export type MemoryStorageConfig = Omit<StorageConfig, "type">;
